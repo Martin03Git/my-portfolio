@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Martin | Jr. Front-end Developer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+  
+
+  <div class="container">
+    <!-- Navigaion -->
+    <nav>
+      <div class="dev-name">
+        <h2>Martin Eka Putra Joya</h2>
+      </div>
+
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li>|</li>
+        <li><a href="#projects">Projects</a></li>
+        <li>|</li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <!-- Hamburger Menu -->
+      <div class="menu-toggle">
+        <input type="checkbox">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+
+    <!-- Home -->
+    <section class="home">
+      <div>
+        <h1>Hello, I'm Martin</h1>
+        <p>Jr. Frontend Developer</p>
+        <div class="contact-icon">
+          <a target="_blank" href="https://github.com/Martin03Git"><i class="bi bi-github"></i></a>
+          <a target="_blank" href="https://www.linkedin.com/in/martin-eka-putra-joya-9ab0082b6"><i class="bi bi-linkedin"></i></a>
+          <a target="_blank" href="mailto:martinekaputrajoya@gmail.com"><i class="bi bi-envelope-fill"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="about" id="about">
+      <div>
+        <h2>About me</h2>
+        <div class="photo-profile"></div>
+        <div class="bio">
+          <h3>I love Technology💻</h3>
+          <p>I've always been fascinated by anything related to technology since I was a kid, from robots like Transformers to Iron Man. I first got my hands on a computer when I was 14, and my interest only grew stronger as I entered vocational school, where I started learning about web programming.</p>
+        </div>
+        <div class="skills">
+          <h3>My Skills</h3>
+          <ul>
+            <li class="tech">HTML</li>
+            <li class="tech">CSS</li>
+            <li class="tech">Javascript</li>
+            <li class="tech">Node.js</li>
+            <li class="tech">Express.js</li>
+            <li class="tech">REST API</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="projects" id="projects">
+      <div>
+        <h2>Projects</h2>
+        <div class="project">
+          <img src="images/animeWave.PNG" class="project-image">
+          <h3 class="project-title">Anime Wave</h3>
+          <p class="project-desc">This is a team project I worked on with two of my friends (frontend only). We created this project to apply and implement what we’ve learned so far about HTML and CSS, with a touch of JavaScript.          </p>
+          <ul>
+            <li><h4>Tech stack : </h4></li>
+            <li class="tech">HTML</li>
+            <li class="tech">CSS</li>
+            <li class="tech">Javascript</li>
+          </ul>
+          <a href="https://martin03git.infinityfreeapp.com/projects/anime_wave/" class="view-project">View Project</a>
+        </div>
+        <div class="project">
+          <img src="images/wahyuNovel.PNG" class="project-image">
+          <h3 class="project-title">Wahyu Novel</h3>
+          <p class="project-desc">A simple CRUD project we created to test our web programming skills. It includes key features such as multi-user login, an admin dashboard, novel data management, and a reader page for general users.</p>
+          <ul>
+            <li><h4>Tech stack : </h4></li>
+            <li class="tech">HTML</li>
+            <li class="tech">CSS</li>
+            <li class="tech">Javascript</li>
+            <li class="tech">Bootstrap</li>
+            <li class="tech">PHP</li>
+            <li class="tech">MySQL</li>
+          </ul>
+          <a href="https://martin03git.infinityfreeapp.com/projects/wahyu_novel/" class="view-project">View Project</a>
+        </div>
+        <div class="project">
+          <img src="images/comingsoon.PNG" class="project-image">
+          <h3 class="project-title">WeatherSphere </h3>
+          <p class="project-desc">This is a personal project I created to test my skills and understanding of how to fetch, manage, and display data from an API.</p>
+          <ul>
+            <li><h4>Tech stack : </h4></li>
+            <li class="tech">HTML</li>
+            <li class="tech">CSS</li>
+            <li class="tech">Javascript</li>
+            <li class="tech">Node.js</li>
+            <li class="tech">Express.js</li>
+            <li class="tech">OpenWeather API</li>
+          </ul>
+          <!-- <a href="" class="view-project" disabled>View Project</a> -->
+        </div>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- Contact me -->
+    <section class="contact" id="contact">
+      <form action="https://api.web3forms.com/submit" method="POST">
+        <h2>Get in touch</h2>
+        <input type="hidden" name="access_key" value="0b95246d-744b-4d06-8047-14b99e5aa23f">
+        <input type="text" name="sender-name" id="sender-name" placeholder="Your name" required>
+        <input type="email" name="sender-email" id="sender-email" placeholder="Your Email Address" required>
+        <textarea name="sender-message" id="sender-message" cols="30" rows="10" placeholder="Your Message" required></textarea>
+        <input type="submit" value="Send">
+      </form>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div>
+        <a href="">Martin Eka <br> Putra Joya</a>
+        <ul>
+          <li>Get in touch</li>
+          <li>
+            <a target="_blank" href="https://github.com/Martin03Git"><i class="bi bi-github"></i></a>
+            <a target="_blank" href="https://www.linkedin.com/in/martin-eka-putra-joya-9ab0082b6"><i class="bi bi-linkedin"></i></a>
+            <a target="_blank" href="mailto:martinekaputrajoya@gmail.com"><i class="bi bi-envelope-fill"></i></a>
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+  </div>
+  <script>
+
+    // Navigation : Hamburger Menu
+    const menuToggle = document.querySelector(".menu-toggle");
+    const nav = document.querySelector("nav ul");
+
+    menuToggle.addEventListener('click', function() {
+      nav.classList.toggle('slide');
+    });
+
+  </script>
+</body>
+</html>

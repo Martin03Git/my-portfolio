@@ -1,0 +1,688 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-size: 18px;
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #0B192C;
+  color: #FF6500;
+}
+
+
+.container {
+  width: 100%;
+}
+
+li.tech {
+  background-color: #0B192C;
+  padding: 5px 10px;
+  color: #FAF9F6;
+  border-radius: 3px;
+}
+
+a {
+  text-decoration: none;
+  color: #FF6500;
+}
+
+hr {
+  width: 90%;
+  border: none;
+  background-color: #FF6500;
+  height: 2px;
+  border-radius: 2px;
+  margin: 0px auto;
+}
+
+/* Scrollbar */
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #FF6500;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #0B192C;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+
+
+
+
+/* Navigation */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  padding: 0px 20px;
+}
+
+nav .dev-name {
+  font-size: 0.8em;
+}
+
+nav ul {
+  display: flex;
+  justify-content: space-around;
+  width: 40%;
+  list-style: none;
+}
+
+nav ul li a {
+  padding: 5px;
+}
+
+nav ul li a:hover {
+  color: #ffa061;
+}
+
+
+
+
+/* Hamburger Menu */
+
+nav .menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 25px;
+  position: relative;
+}
+
+nav .menu-toggle span {
+  display: block;
+  height: 3px;
+  width: 25px;
+  background-color: #FF6500;
+  border-radius: 2px;
+  transition: all 0.5s;
+}
+
+nav .menu-toggle input {
+  width: 25px;
+  height: 25px;
+  opacity: 0;
+  z-index: 3;
+  position: absolute;
+}
+
+nav .menu-toggle input:hover {
+  cursor: pointer;
+}
+
+/* Hamburger Menu Animation */
+
+nav .menu-toggle span:nth-child(2) {
+  transform-origin: 0 0;
+}
+
+nav .menu-toggle span:nth-child(4) {
+  transform-origin: 0 100%;
+}
+
+nav .menu-toggle input:checked ~ span:nth-child(2) {
+  transform: rotate(45deg);
+  background-color: #ffa061;
+}
+
+nav .menu-toggle input:checked ~ span:nth-child(4) {
+  transform: rotate(-45deg) translate(-2px, 1px);
+  background-color: #ffa061;
+}
+
+nav .menu-toggle input:checked ~ span:nth-child(3) {
+  transform: scale(0);
+  opacity: 0;
+}
+
+
+
+
+
+
+
+
+/* Home */
+.home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+
+}
+
+.home div:first-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 70%;
+  height: 140px;
+}
+
+.home h1 {
+  font-size: 3em;
+}
+
+.home p {
+  font-size: 1.8em;
+}
+
+.home .contact-icon {
+  font-size: 1.3em;
+}
+
+
+
+
+
+
+
+/* About */
+.about {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 80vh;
+  background-color: #FF6500;
+  color: #0B192C;
+}
+
+.about div:first-child {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 0.8fr repeat(3, 1fr);
+  grid-template-areas: 
+    "heading heading heading"
+    "photo bio bio"
+    "photo bio bio"
+    "photo skills skills";
+  width: 80%;
+  min-height: 350px;
+}
+
+.about h2 {
+  grid-area: heading;
+  font-size: 2em;
+}
+
+.about .photo-profile {
+  grid-area: photo;
+  width: 220px;
+  height: 290px;
+  background-image: url(../images/profile.jpg);
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+  justify-self: center;
+  align-self: center;
+  box-shadow: 10px 10px #0B192C;
+}
+
+.about .bio {
+  grid-area: bio;
+}
+
+.about .bio h3 {
+  margin-bottom: 10px;
+}
+
+.about .skills {
+  grid-area: skills;
+}
+
+.about .skills h3 {
+  margin-bottom: 10px;
+}
+
+.about ul {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+
+
+
+
+
+
+/* Projects */
+.projects {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 0;
+  min-height: 100vh;
+}
+
+.projects div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 80%;
+}
+
+.projects h2 {
+  font-size: 2em;
+  align-self: flex-start;
+}
+
+.projects div.project {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-template-areas:
+    "proj-photo proj-title"
+    "proj-photo proj-desc"
+    "proj-photo proj-desc"
+    "proj-photo tech-stack"
+    "proj-photo view-proj";
+  align-items: center;
+  column-gap: 10px;
+  width: 100%;
+}
+
+.projects img {
+  grid-area: proj-photo;
+  justify-self: center;
+  align-self: center;
+  width: 450px;
+  border: 3px solid #FF6500;
+  border-radius: 5px;
+  box-shadow: 10px 10px #FF6500;
+}
+
+.projects h3.project-title {
+  grid-area: proj-title;
+  font-size: 1.6em;
+}
+
+.projects p.project-desc {
+  grid-area: proj-desc;
+}
+
+.projects ul {
+  grid-area: tech-stack;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+.projects ul li.tech {
+  font-size: 0.8em;
+}
+
+.projects a.view-project {
+  grid-area: view-proj;
+  width: fit-content;
+  padding: 10px;
+  border-radius: 5px;
+  border: 3px solid #FF6500;
+}
+
+
+
+
+
+/* Contact me */
+.contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.contact form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 1fr 4fr 1fr;
+  grid-template-areas: 
+    "heading heading"
+    "send-name send-email"
+    "send-message send-message"
+    "submit-btn submit-btn";
+  row-gap: 15px;
+  column-gap: 20px;
+  width: 600px;
+}
+
+.contact h2 {
+  grid-area: heading;
+  font-size: 2em;
+}
+
+.contact input, textarea {
+  background-color: #0B192C;
+  border: none;
+  padding: 10px;
+  color: #FF6500;
+  font-size: 1em;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.contact input[name="sender-name"], 
+.contact input[name="sender-email"] {
+  border-bottom: 2px solid #FF6500;
+}
+
+.contact form *:focus {
+  border: none;
+  border-radius: 5px;
+  outline: 2px solid #ffa061;
+}
+
+.contact input[name="sender-name"] {
+  grid-area: send-name;
+}
+
+.contact input[name="sender-email"] {
+  grid-area: send-email;
+}
+
+.contact textarea[name="sender-message"] {
+  grid-area: send-message;
+  border: 2px solid #FF6500;
+  border-radius: 5px;
+}
+
+.contact textarea[name="sender-message"]:focus {
+  border: none;
+}
+
+.contact input[type="submit"] {
+  grid-area: submit-btn;
+  justify-self: end;
+  align-self: center;
+  cursor: pointer;
+  border: 2px solid #FF6500;
+  border-radius: 5px;
+  padding: 10px 20px;
+  width: fit-content;
+  height: fit-content;
+}
+
+
+
+
+
+
+
+/* Footer */
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  background-color: #071324;
+}
+
+footer div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+}
+
+footer a {
+  font-weight: 900;
+}
+
+footer ul {
+  list-style: none;
+}
+
+footer ul li {
+  margin-bottom: 10px;
+}
+
+footer ul li:last-child {
+  font-size: 1.5em;
+}
+
+
+
+
+
+
+
+
+
+/* Responsive Breakpoint */
+
+/* Screen maximum with 1024px */
+@media screen and (max-width: 1024px) {
+  /* About */
+  .about {
+    height: 40vh;
+  }
+
+  .about div:first-child {
+    width: 90%;
+  }
+
+
+
+  /* Projects */
+  .projects {
+    min-height: 70vh;
+  }
+
+  .projects div:first-child {
+    width: 90%;
+  }
+
+  .projects img {
+    width: 360px;
+  }
+
+
+
+  /* Contact me */
+  .contact {
+    height: 50vh;
+  }
+}
+
+
+
+
+/* Tablet */
+@media screen and (max-width: 768px) {
+  /* Navigation */
+  nav .dev-name {
+    font-size: 0.7em;
+  }
+
+
+
+  /* Home */
+  .home h1 {
+    font-size: 2.2em;
+  }
+
+  .home p {
+    font-size: 1.5em;
+  }
+
+
+
+  /* About */
+  .about {
+    height: 45vh;
+  }
+
+  .about div:first-child {
+    column-gap: 15px;
+  }
+
+  .about .photo-profile {
+    width: 190px;
+    height: 250px;
+  }
+  
+  .about h2 {
+    align-self: center;
+  }
+
+  .about ul {
+    gap: 5px;
+    justify-content: start;
+  }
+
+
+
+  /* Projects */
+  .projects div:first-child {
+    gap: 60px;
+  }
+
+  .projects div.project {
+    width: 80%;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 0.46fr);
+    grid-template-areas:
+      "proj-photo proj-photo"
+      "proj-title proj-title"
+      "proj-desc proj-desc"
+      "tech-stack tech-stack"
+      "view-proj view-proj";
+  }
+
+  .projects img {
+    width: 400px;
+  }
+}
+
+
+
+/* Mobile */
+@media screen and (max-width: 580px) {
+  /* Navigation */
+  nav .dev-name {
+    font-size: 0.6em;
+  }
+
+  nav ul {
+    position: absolute;
+    flex-direction: column;
+    top: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0B192C;
+    justify-content: space-around;
+    align-items: center;
+    transform: translateX(100%);
+    opacity: 0;
+    display: none;
+    transition: all 0.5;
+  }
+
+  nav ul li:nth-child(2), nav ul li:nth-child(4) {
+    display: none;
+  }
+
+  nav ul.slide {
+    opacity: 1;
+    display: inherit;
+    transform: translateX(0);
+  }
+
+  nav .menu-toggle {
+    display: flex;
+  }
+
+
+  /* Home */
+  .home div:first-child {
+    height: 180px;
+  }
+
+
+  /* About */
+  .about {
+    min-height: 85vh;
+  }
+
+  .about div:first-child {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 0.2fr 1.2fr 1fr 0.6fr;
+    grid-template-areas: 
+      "heading heading heading"
+      "photo photo photo"
+      "bio bio bio"
+      "skills skills skills";
+    row-gap: 15px;
+
+  }
+
+  .about ul {
+    justify-content: center;
+  }
+
+
+
+  /* Projects */
+  .projects div.project {
+    width: 80%;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 0.46fr);
+    grid-template-areas:
+      "proj-photo proj-photo"
+      "proj-title proj-title"
+      "proj-desc proj-desc"
+      "tech-stack tech-stack"
+      "view-proj view-proj";
+    row-gap: 15px;
+  }
+
+  .projects img {
+    width: 100%;
+  }
+
+
+
+  /* Contact me */
+  .contact {
+    height: 70vh;
+  }
+
+  .contact form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr) 3fr 1fr;
+    grid-template-areas: 
+      "heading heading"
+      "send-name send-name"
+      "send-email send-email"
+      "send-message send-message"
+      "submit-btn submit-btn";
+    row-gap: 15px;
+    column-gap: 20px;
+    width: 90%;
+  }
+
+
+}
