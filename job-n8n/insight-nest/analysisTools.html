@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightNest | Marketing Analysis Tools</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS Variables */
+        :root {
+            --primary: #6D28D9;
+            --secondary: #4C1D95;
+            --light: #FAF5FF;
+            --dark: #1E1B4B;
+            --accent: #A855F7;
+            --bg-light: #f0f0f7;
+            --shadow-light: #ffffff;
+            --shadow-dark: #d9d9e6;
+        }
+
+        /* Base Styles */
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #333;
+        }
+
+        /* Neumorphism Base Styles */
+        .neumorph {
+            border-radius: 20px;
+            background: var(--bg-light);
+            box-shadow:  8px 8px 16px var(--shadow-dark),
+                         -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .neumorph-inset {
+            border-radius: 15px;
+            background: var(--bg-light);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                         inset -4px -4px 8px var(--shadow-light);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .neumorph-btn {
+            border-radius: 12px;
+            background: var(--bg-light);
+            box-shadow:  4px 4px 8px var(--shadow-dark),
+                         -4px -4px 8px var(--shadow-light);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-wrap: wrap;
+            min-height: 44px;
+            width: auto;
+        }
+
+        .neumorph-btn:hover {
+            box-shadow:  6px 6px 12px var(--shadow-dark),
+                         -6px -6px 12px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .neumorph-btn:active {
+            box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                         inset -2px -2px 4px var(--shadow-light);
+            transform: translateY(0);
+        }
+
+        /* Tool Card Styles */
+        .tool-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        /* Analysis Form Styles */
+        .analysis-form {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .analysis-form.open {
+            max-height: 500px; /* Adjust as needed for content */
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            border: 4px solid rgba(109, 40, 217, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Overlays */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .modal-overlay.open .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%; /* Start off-screen */
+            width: 250px;
+            height: 100%;
+            background: var(--bg-light);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 50;
+            transition: right 0.3s ease-in-out;
+            padding-top: 4rem;
+        }
+        .mobile-menu.open {
+            right: 0;
+        }
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .mobile-menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .neumorph {
+                border-radius: 15px;
+                box-shadow:  5px 5px 10px var(--shadow-dark),
+                             -5px -5px 10px var(--shadow-light);
+            }
+            .neumorph-btn {
+                border-radius: 10px;
+                box-shadow:  3px 3px 6px var(--shadow-dark),
+                             -3px -3px 6px var(--shadow-light);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Modal Umum untuk Alerts/Info -->
+    <div id="info-modal" class="modal-overlay">
+        <div class="modal-content neumorph">
+            <h3 id="info-modal-title" class="text-xl font-semibold text-gray-800 mb-4"></h3>
+            <p id="info-modal-message" class="text-gray-600 mb-6"></p>
+            <button onclick="closeInfoModal()" class="neumorph-btn px-6 py-2 bg-purple-600 text-white font-medium rounded-lg hover:shadow-none transition">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal untuk Tautan Pembayaran -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content neumorph">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Payment Required</h3>
+            <p class="text-gray-600 mb-4">Please complete the payment to proceed with the analysis.</p>
+            <div class="neumorph-inset p-3 rounded-lg flex items-center justify-between mb-6">
+                <input type="text" id="payment-link-display" class="w-full bg-transparent border-none outline-none text-purple-600 font-medium text-sm" value="" readonly>
+                <button onclick="copyPaymentLink()" class="ml-3 text-gray-500 hover:text-purple-600 transition">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a id="open-payment-link-btn" href="#" target="_blank" class="neumorph-btn px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-none transition">
+                    Open Payment Link <i class="fas fa-external-link-alt ml-2"></i>
+                </a>
+                <button onclick="closePaymentModal()" class="neumorph-btn px-6 py-2 text-gray-700 font-medium rounded-lg hover:shadow-none transition">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2 animate-slide-in-left">
+                <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">InsightNest</h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="index.html" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2">Home</a>
+                <a href="analysisTools.html" class="text-purple-600 font-medium transition duration-200 py-2">Tools</a>
+                <a href="#" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2">Features</a>
+                <a href="#" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2">Contact</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-40 hidden" onclick="toggleMobileMenu()"></div>
+
+    <!-- Mobile Menu Sidebar -->
+    <div id="mobile-menu" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-6">
+        <nav class="flex flex-col space-y-4">
+            <a href="insightnest-v2.html" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2" onclick="toggleMobileMenu()">Home</a>
+            <a href="#" class="text-purple-600 font-medium transition duration-200 py-2" onclick="toggleMobileMenu()">Tools</a>
+            <a href="insightnest-v2.html#features" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2" onclick="toggleMobileMenu()">Features</a>
+            <a href="insightnest-v2.html#contact" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2" onclick="toggleMobileMenu()">Contact</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="py-12 px-4">
+        <div class="container mx-auto">
+            <!-- Page Header -->
+            <section class="text-center mb-16 animate-fade-in">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Marketing Analysis Tools</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Powerful AI-driven tools to analyze your competitors and optimize your marketing strategy</p>
+            </section>
+
+            <!-- Tools Grid -->
+            <section class="mb-16">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Amazon Sentiment Analysis -->
+                    <div id="tool1" class="tool-card neumorph p-6 rounded-2xl group">
+                        <div class="flex items-start mb-4">
+                            <div class="w-14 h-14 flex items-center justify-center rounded-full mr-4 group-hover:bg-purple-100 transition" style="background-color: rgba(168, 85, 247, 0.1);">
+                                <i class="fas fa-star text-purple-600 text-2xl group-hover:text-purple-700 transition"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800 mb-1">Amazon Sentiment Analysis</h3>
+                                <p class="text-sm text-gray-500">Gain insights from customer reviews</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">Uncover customer emotions and preferences from Amazon product reviews to refine your offerings and marketing.</p>
+                        <ul class="list-disc pl-5 text-gray-700 text-sm space-y-1 mb-6">
+                            <li>Comprehensive sentiment analysis</li>
+                            <li>Review theme extraction</li>
+                            <li>Rating trends over time</li>
+                            <li>Competitive benchmarking</li>
+                        </ul>
+                        <button onclick="toggleForm('amazon-form')" class="neumorph-btn w-full py-3 text-purple-600 font-medium hover:shadow-none transition">
+                            <i class="fas fa-play-circle mr-2"></i> Start Analysis
+                        </button>
+                    </div>
+
+                    <!-- Meta Ads Analysis -->
+                    <div id="tool2" class="tool-card neumorph p-6 rounded-2xl group">
+                        <div class="flex items-start mb-4">
+                            <div class="w-14 h-14 flex items-center justify-center rounded-full mr-4 group-hover:bg-purple-100 transition" style="background-color: rgba(168, 85, 247, 0.1);">
+                                <i class="fas fa-ad text-purple-600 text-2xl group-hover:text-purple-700 transition"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800 mb-1">Meta Ads Analysis</h3>
+                                <p class="text-sm text-gray-500">Decode competitor advertising strategies</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">Analyze competitor Facebook and Instagram ads to identify winning strategies and creative approaches.</p>
+                        <ul class="list-disc pl-5 text-gray-700 text-sm space-y-1 mb-6">
+                            <li>Ad creative analysis</li>
+                            <li>Messaging breakdown</li>
+                            <li>Ad frequency insights</li>
+                            <li>Performance benchmarks</li>
+                        </ul>
+                        <button onclick="toggleForm('meta-form')" class="neumorph-btn w-full py-3 text-purple-600 font-medium hover:shadow-none transition">
+                            <i class="fas fa-play-circle mr-2"></i> Start Analysis
+                        </button>
+                    </div>
+
+                    <!-- Social Media Analysis -->
+                    <div id="tool3" class="tool-card neumorph p-6 rounded-2xl group">
+                        <div class="flex items-start mb-4">
+                            <div class="w-14 h-14 flex items-center justify-center rounded-full mr-4 group-hover:bg-purple-100 transition" style="background-color: rgba(168, 85, 247, 0.1);">
+                                <i class="fas fa-hashtag text-purple-600 text-2xl group-hover:text-purple-700 transition"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800 mb-1">Social Media Analysis</h3>
+                                <p class="text-sm text-gray-500">Optimize your social media strategy</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">Analyze Instagram, TikTok, and Pinterest content to understand what drives engagement in your niche.</p>
+                        <ul class="list-disc pl-5 text-gray-700 text-sm space-y-1 mb-6">
+                            <li>Content format analysis</li>
+                            <li>Engagement metrics</li>
+                            <li>Visual storytelling</li>
+                            <li>Hashtag performance</li>
+                        </ul>
+                        <button onclick="toggleForm('social-form')" class="neumorph-btn w-full py-3 text-purple-600 font-medium hover:shadow-none transition">
+                            <i class="fas fa-play-circle mr-2"></i> Start Analysis
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Forms Section -->
+            <section>
+                <!-- Amazon Analysis Form -->
+                <div id="amazon-form" class="analysis-form mb-8">
+                    <div class="neumorph p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">Amazon Product Review Analysis</h3>
+                            <button onclick="toggleForm('amazon-form')" class="text-gray-500 hover:text-purple-600 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="amazon-analysis-form" onsubmit="handleAmazonAnalysis(event)">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="amazon-url">
+                                    Product URL
+                                </label>
+                                <input type="text" id="amazon-url" name="amazon-url" class="neumorph-inset w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="https://www.amazon.com/Your-Product-Name/dp/..." required>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-gray-700 text-sm font-medium mb-2">
+                                    Analysis Options
+                                </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="sentiment" id="sentiment">
+                                        <span class="ml-2 text-gray-700">Sentiment Analysis</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="themes" id="themes">
+                                        <span class="ml-2 text-gray-700">Review Themes</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="competitors" id="competitors">
+                                        <span class="ml-2 text-gray-700">Compare Competitors</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="timeline" id="timeline">
+                                        <span class="ml-2 text-gray-700">Rating Timeline</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="neumorph-btn px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-none transition">
+                                    Analyze Product <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Meta Ads Analysis Form -->
+                <div id="meta-form" class="analysis-form mb-8">
+                    <div class="neumorph p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">Meta Ad Library Analysis</h3>
+                            <button onclick="toggleForm('meta-form')" class="text-gray-500 hover:text-purple-600 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="meta-analysis-form" onsubmit="runAnalysis(event, 'meta')">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="meta-page">
+                                    Facebook/Instagram Page URL or Username
+                                </label>
+                                <input type="text" id="meta-page" name="meta-page" class="neumorph-inset w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="https://www.facebook.com/username" required>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-gray-700 text-sm font-medium mb-2">
+                                    Analysis Options
+                                </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="creative" id="creative">
+                                        <span class="ml-2 text-gray-700">Creative Analysis</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="messaging" id="messaging">
+                                        <span class="ml-2 text-gray-700">Messaging Strategy</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="targeting" id="targeting">
+                                        <span class="ml-2 text-gray-700">Targeting Insights</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="performance" id="performance">
+                                        <span class="ml-2 text-gray-700">Performance Metrics</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="neumorph-btn px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-none transition">
+                                    Analyze Ads <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Social Media Analysis Form -->
+                <div id="social-form" class="analysis-form mb-8">
+                    <div class="neumorph p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">Social Media Profile Analysis</h3>
+                            <button onclick="toggleForm('social-form')" class="text-gray-500 hover:text-purple-600 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="social-analysis-form" onsubmit="runAnalysis(event, 'social')">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="social-platform">
+                                    Platform
+                                </label>
+                                <select id="social-platform" name="social-platform" class="neumorph-inset w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                                    <option value="">Select platform</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="tiktok">TikTok</option>
+                                    <option value="pinterest">Pinterest</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="social-profile">
+                                    Profile Username
+                                </label>
+                                <input type="text" id="social-profile" name="social-profile" class="neumorph-inset w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="@username" required>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-gray-700 text-sm font-medium mb-2">
+                                    Analysis Options
+                                </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="content-types" id="content-types">
+                                        <span class="ml-2 text-gray-700">Content Type Analysis</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="engagement" id="engagement">
+                                        <span class="ml-2 text-gray-700">Engagement Metrics</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="aesthetics" id="aesthetics">
+                                        <span class="ml-2 text-gray-700">Visual Aesthetics</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-purple-500" checked name="hashtags" id="hashtags">
+                                        <span class="ml-2 text-gray-700">Hashtag Performance</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="neumorph-btn px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-none transition">
+                                    Analyze Profile <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Results Section (These sections are still present as they are part of the 'Tools' page functionality) -->
+            <section>
+                <div id="amazon-results" class="results-section">
+                    <div class="neumorph p-6 rounded-2xl mb-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-2xl font-semibold text-gray-800">Amazon Product Analysis Results</h3>
+                            <button onclick="hideResults('amazon')" class="text-gray-500 hover:text-purple-600 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mb-6 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-700">Analyzed Product:</h4>
+                                <p id="amazon-product-name" class="text-purple-600 font-medium">Premium Wireless Headphones - 2023 Model</p>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium mr-4">
+                                    <i class="fas fa-star mr-1"></i> 4.6/5.0
+                                </div>
+                                <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-comment mr-1"></i> 1,243 reviews
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            <!-- Sentiment Analysis -->
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-smile text-purple-600 mr-2"></i> Sentiment Analysis
+                                </h4>
+                                <div class="flex items-center mb-3">
+                                    <div class="w-3/4 bg-gray-200 rounded-full h-3 mr-3">
+                                        <div class="bg-green-500 h-3 rounded-full" style="width: 72%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">72% Positive</span>
+                                </div>
+                                <div class="flex items-center mb-3">
+                                    <div class="w-3/4 bg-gray-200 rounded-full h-3 mr-3">
+                                        <div class="bg-yellow-500 h-3 rounded-full" style="width: 18%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">18% Neutral</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-3/4 bg-gray-200 rounded-full h-3 mr-3">
+                                        <div class="bg-red-500 h-3 rounded-full" style="width: 10%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">10% Negative</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Review Themes -->
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-tags text-purple-600 mr-2"></i> Common Themes
+                                </h4>
+                                <div class="space-y-2">
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>Sound Quality</span>
+                                            <span>48% mentions</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 48%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>Battery Life</span>
+                                            <span>32% mentions</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 32%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>Comfort</span>
+                                            <span>25% mentions</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 25%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Comparative Analysis -->
+                        <div class="neumorph p-6 rounded-2xl mb-8">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-line text-purple-600 mr-2"></i> Competitive Comparison
+                            </h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="text-left py-3 px-4 text-gray-700 font-medium">Product</th>
+                                            <th class="text-center py-3 px-4 text-gray-700 font-medium">Rating</th>
+                                            <th class="text-center py-3 px-4 text-gray-700 font-medium">Sentiment</th>
+                                            <th class="text-center py-3 px-4 text-gray-700 font-medium">Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4 font-medium">Analyzed Product</td>
+                                            <td class="text-center py-3 px-4 text-yellow-500">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </td>
+                                            <td class="text-center py-3 px-4">
+                                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">72% Positive</span>
+                                            </td>
+                                            <td class="text-center py-3 px-4">$129.99</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4">Competitor A</td>
+                                            <td class="text-center py-3 px-4 text-yellow-500">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </td>
+                                            <td class="text-center py-3 px-4">
+                                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">65% Positive</span>
+                                            </td>
+                                            <td class="text-center py-3 px-4">$149.99</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4">Competitor B</td>
+                                            <td class="text-center py-3 px-4 text-yellow-500">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </td>
+                                            <td class="text-center py-3 px-4">
+                                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">88% Positive</span>
+                                            </td>
+                                            <td class="text-center py-3 px-4">$199.99</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Actionable Insights -->
+                        <div class="neumorph p-6 rounded-2xl">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb text-purple-600 mr-2"></i> Actionable Recommendations
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Highlight Sound Quality</h5>
+                                            <p class="text-sm text-gray-600">48% of positive reviews mention sound quality - feature this prominently in marketing.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Improve Comfort</h5>
+                                            <p class="text-sm text-gray-600">15% of negative reviews mention comfort issues - consider design tweaks or alternative materials.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Price Positioning</h5>
+                                            <p class="text-sm text-gray-600">Your product offers better value than Competitor A at a lower price - emphasize this.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Address Battery Life Concerns</h5>
+                                            <p class="text-sm text-gray-600">While battery life is mostly praised, consider adding enhancements for the next model.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meta Ads Results -->
+                <div id="meta-results" class="results-section">
+                    <div class="neumorph p-6 rounded-2xl mb-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-2xl font-semibold text-gray-800">Meta Ads Analysis Results</h3>
+                            <button onclick="hideResults('meta')" class="text-gray-500 hover:text-purple-600 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mb-6">
+                            <h4 class="text-lg font-medium text-gray-700">Analyzed Page:</h4>
+                            <p id="meta-page-name" class="text-purple-600 font-medium">@PremiumAudioBrand</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <!-- Ad Stats Overview -->
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3">Active Campaigns</h4>
+                                <div class="text-3xl font-bold text-purple-600 mb-2">12</div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-arrow-up text-green-500 mr-1"></i> 15% from last month
+                                </div>
+                            </div>
+                            
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3">Average Ad Duration</h4>
+                                <div class="text-3xl font-bold text-purple-600 mb-2">5.7 days</div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-arrow-down text-yellow-500 mr-1"></i> 2.3 days shorter than competitors
+                                </div>
+                            </div>
+                            
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3">Primary Audience</h4>
+                                <div class="text-lg font-bold text-purple-600 mb-2">25-34 years</div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-male mr-1"></i> 68% female
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ad Creative Analysis -->
+                        <div class="neumorph p-6 rounded-2xl mb-8">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-paint-brush text-purple-600 mr-2"></i> Creative Execution Analysis
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Content Types</h5>
+                                    <div class="neumorph-inset p-4 rounded-lg">
+                                        <div class="space-y-4">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Video Ads</span>
+                                                    <span>65%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                                    <div class="bg-purple-600 h-3 rounded-full" style="width: 65%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Carousel Ads</span>
+                                                    <span>25%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                                    <div class="bg-purple-600 h-3 rounded-full" style="width: 25%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Image Ads</span>
+                                                    <span>10%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                                    <div class="bg-purple-600 h-3 rounded-full" style="width: 10%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Messaging Themes</h5>
+                                    <div class="neumorph-inset p-4 rounded-lg">
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Sound Quality</span>
+                                                    <span>42%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 42%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Special Offers</span>
+                                                    <span>35%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 35%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Comfort & Design</span>
+                                                    <span>28%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 28%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Performing Ads -->
+                        <div class="neumorph p-6 rounded-2xl mb-8">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-line text-purple-600 mr-2"></i> Top Performing Ads
+                            </h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="text-left py-3 px-4 text-gray-700 font-medium">Creative</th>
+                                            <th class="text-center py-3 px-4 text-gray-700 font-medium">Type</th>
+                                            <th class="text-center py-3 px-4 text-gray-700 font-medium">Duration</th>
+                                            <th class="text-center py-3 px-4 text-gray-700 font-medium">Engagement</th>
+                                            <th class="text-center py-3 px-4 text-gray-700 font-medium">CTR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-16 h-16 bg-gray-100 rounded-lg mr-3 overflow-hidden">
+                                                        <img src="https://placehold.co/80x80/F3F4F6/6B7280?text=Ad+1" alt="Ad creative" class="w-full h-full object-cover">
+                                                    </div>
+                                                    <span class="font-medium">Summer Sale - 50% Off</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center py-3 px-4">
+                                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Video</span>
+                                            </td>
+                                            <td class="text-center py-3 px-4">14 days</td>
+                                            <td class="text-center py-3 px-4 text-green-600 font-medium">4.8%</td>
+                                            <td class="text-center py-3 px-4 text-green-600 font-medium">2.3%</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-16 h-16 bg-gray-100 rounded-lg mr-3 overflow-hidden">
+                                                        <img src="https://placehold.co/80x80/F3F4F6/6B7280?text=Ad+2" alt="Ad creative" class="w-full h-full object-cover">
+                                                    </div>
+                                                    <span class="font-medium">Noise Canc Demo</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center py-3 px-4">
+                                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Carousel</span>
+                                            </td>
+                                            <td class="text-center py-3 px-4">9 days</td>
+                                            <td class="text-center py-3 px-4 text-green-600 font-medium">3.5%</td>
+                                            <td class="text-center py-3 px-4 text-green-600 font-medium">1.8%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-16 h-16 bg-gray-100 rounded-lg mr-3 overflow-hidden">
+                                                        <img src="https://placehold.co/80x80/F3F4F6/6B7280?text=Ad+3" alt="Ad creative" class="w-full h-full object-cover">
+                                                    </div>
+                                                    <span class="font-medium">Celebrity Endorsement</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center py-3 px-4">
+                                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Image</span>
+                                            </td>
+                                            <td class="text-center py-3 px-4">21 days</td>
+                                            <td class="text-center py-3 px-4 text-green-600 font-medium">2.9%</td>
+                                            <td class="text-center py-3 px-4 text-green-600 font-medium">1.5%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Competitive Insights -->
+                        <div class="neumorph p-6 rounded-2xl">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-users text-purple-600 mr-2"></i> Competitive Insights
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Video Content Advantage</h5>
+                                            <p class="text-sm text-gray-600">Your 65% video ad rate outperforms the industry average of 48% - continue investing here.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-bolt"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Shorter Ad Duration</h5>
+                                            <p class="text-sm text-gray-600">Consider extending ad runs beyond 5.7 days to match competitor performance peaks.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-percentage"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">CTR Optimization</h5>
+                                            <p class="text-sm text-gray-600">Your 1.8% average CTR is solid - testing different call-to-actions could push this higher.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Results -->
+                <div id="social-results" class="results-section">
+                    <div class="neumorph p-6 rounded-2xl mb-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-2xl font-semibold text-gray-800">Social Media Analysis Results</h3>
+                            <button onclick="hideResults('social')" class="text-gray-500 hover:text-purple-600 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mb-6">
+                            <h4 class="text-lg font-medium text-gray-700">Analyzed Profile:</h4>
+                            <p id="social-profile-name" class="text-purple-600 font-medium">@PremiumAudioBrand (Instagram)</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3">Followers</h4>
+                                <div class="text-3xl font-bold text-purple-600">142K</div>
+                            </div>
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3">Avg. Engagement</h4>
+                                <div class="text-3xl font-bold text-purple-600">4.2%</div>
+                            </div>
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3">Posting Frequency</h4>
+                                <div class="text-3xl font-bold text-purple-600">3.2/week</div>
+                            </div>
+                            <div class="neumorph p-4 rounded-xl">
+                                <h4 class="font-medium text-gray-800 mb-3">Hashtags/Post</h4>
+                                <div class="text-3xl font-bold text-purple-600">9</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Content Analysis -->
+                        <div class="neumorph p-6 rounded-2xl mb-8">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-photo-video text-purple-600 mr-2"></i> Content Performance
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <!-- Post Types -->
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Post Types</h5>
+                                    <div class="neumorph-inset p-4 rounded-lg">
+                                        <div class="space-y-5">
+                                            <div>
+                                                <div class="flex items-center">
+                                                    <div class="bg-purple-600 w-8 h-8 rounded-full flex items-center justify-center text-white mr-3">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                    <div class="flex-grow">
+                                                        <div class="flex justify-between text-sm mb-1">
+                                                            <span>Images</span>
+                                                            <span>40%</span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                                            <div class="bg-purple-600 h-2 rounded-full" style="width: 40%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center">
+                                                    <div class="bg-purple-600 w-8 h-8 rounded-full flex items-center justify-center text-white mr-3">
+                                                        <i class="fas fa-video"></i>
+                                                    </div>
+                                                    <div class="flex-grow">
+                                                        <div class="flex justify-between text-sm mb-1">
+                                                            <span>Videos</span>
+                                                            <span>35%</span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                                            <div class="bg-purple-600 h-2 rounded-full" style="width: 35%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center">
+                                                    <div class="bg-purple-600 w-8 h-8 rounded-full flex items-center justify-center text-white mr-3">
+                                                        <i class="fas fa-square-poll-vertical"></i>
+                                                    </div>
+                                                    <div class="flex-grow">
+                                                        <div class="flex justify-between text-sm mb-1">
+                                                            <span>Carousels</span>
+                                                            <span>25%</span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                                            <div class="bg-purple-600 h-2 rounded-full" style="width: 25%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Engagement by Type -->
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Engagement by Type</h5>
+                                    <div class="neumorph-inset p-4 rounded-lg">
+                                        <div class="space-y-5">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Videos</span>
+                                                    <span>5.1%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 100%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Carousels</span>
+                                                    <span>3.8%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 75%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Images</span>
+                                                    <span>3.2%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 63%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Top Hashtags -->
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Top Hashtags</h5>
+                                    <div class="neumorph-inset p-4 rounded-lg h-full">
+                                        <div class="flex flex-wrap gap-2">
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">#headphones</span>
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">#audiophile</span>
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">#musiclover</span>
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">#wireless</span>
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">#soundquality</span>
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">#bass</span>
+                                        </div>
+                                        <div class="mt-4 text-sm text-gray-600">
+                                            Your branded hashtag <span class="font-medium">#PremiumAudio</span> appears in 78% of posts with average engagement of 4.5%.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Performing Posts -->
+                        <div class="neumorph p-6 rounded-2xl mb-8">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-trophy text-purple-600 mr-2"></i> Top Performing Posts
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="neumorph-inset rounded-xl overflow-hidden">
+                                    <img src="https://placehold.co/600x600/F3F4F6/6B7280?text=Post+1" alt="Top post" class="w-full h-48 object-cover">
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm text-gray-500">2 weeks ago</span>
+                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">9.2% ER</span>
+                                        </div>
+                                        <h5 class="font-medium">New Product Launch</h5>
+                                        <p class="text-sm text-gray-600 mt-1">238 comments, 1.2K shares</p>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset rounded-xl overflow-hidden">
+                                    <img src="https://placehold.co/600x600/F3F4F6/6B7280?text=Post+2" alt="Top post" class="w-full h-48 object-cover">
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm text-gray-500">3 weeks ago</span>
+                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">7.8% ER</span>
+                                        </div>
+                                        <h5 class="font-medium">Behind the Scenes</h5>
+                                        <p class="text-sm text-gray-600 mt-1">184 comments, 890 shares</p>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset rounded-xl overflow-hidden">
+                                    <img src="https://placehold.co/600x600/F3F4F6/6B7280?text=Post+3" alt="Top post" class="w-full h-48 object-cover">
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm text-gray-500">1 month ago</span>
+                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">6.5% ER</span>
+                                        </div>
+                                        <h5 class="font-medium">Customer Testimonial</h5>
+                                        <p class="text-sm text-gray-600 mt-1">152 comments, 720 shares</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Growth Recommendations -->
+                        <div class="neumorph p-6 rounded-2xl">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-seedling text-purple-600 mr-2"></i> Growth Opportunities
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-video"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Increase Video Content</h5>
+                                            <p class="text-sm text-gray-600">Videos drive 42% higher engagement - aim for 50% of content.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">User-Generated Content</h5>
+                                            <p class="text-sm text-gray-600">Encourage fan submissions - performs 28% better on average.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="neumorph-inset p-4 rounded-lg">
+                                    <div class="flex items-start mb-2">
+                                        <div class="bg-purple-100 text-purple-600 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-comments"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">Respond Faster</h5>
+                                            <p class="text-sm text-gray-600">Current 12-hour response time - aim for under 2 hours to boost engagement.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading State (Hidden by default) -->
+            <div id="loading-state" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="neumorph p-8 rounded-2xl text-center max-w-md mx-4">
+                    <div class="loading-spinner mx-auto mb-4"></div>
+                    <h3 id="loading-title" class="text-xl font-semibold text-gray-800 mb-2"></h3>
+                    <p id="loading-message" class="text-gray-600 mb-4"></p>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-purple-600 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-chart-line text-purple-400 text-2xl"></i>
+                        <h3 class="text-xl font-bold">InsightNest</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">AI-powered marketing analytics platform for data-driven professionals.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Features</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">API</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Integrations</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Guides</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Legal</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 InsightNest. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Fungsi untuk mengelola menu mobile (hamburger menu)
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            // Mengubah kelas untuk menggeser menu masuk/keluar layar
+            mobileMenu.classList.toggle('translate-x-full');
+            // Mengubah kelas 'hidden' pada overlay untuk menampilkan/menyembunyikan latar belakang gelap
+            mobileMenuOverlay.classList.toggle('hidden');
+        }
+
+        document.getElementById('mobile-menu-button').addEventListener('click', toggleMobileMenu);
+
+        // Fungsi untuk menampilkan modal informasi/alert umum
+        function showInfoModal(title, message) {
+            document.getElementById('info-modal-title').innerText = title;
+            document.getElementById('info-modal-message').innerText = message;
+            document.getElementById('info-modal').classList.add('open'); // Menampilkan modal
+        }
+
+        // Fungsi untuk menutup modal informasi/alert umum
+        function closeInfoModal() {
+            document.getElementById('info-modal').classList.remove('open'); // Menyembunyikan modal
+        }
+
+        // Fungsi untuk menampilkan modal pembayaran
+        function showPaymentModal(paymentLink) {
+            const paymentModal = document.getElementById('payment-modal');
+            const paymentLinkDisplay = document.getElementById('payment-link-display');
+            const openPaymentLinkBtn = document.getElementById('open-payment-link-btn');
+
+            paymentLinkDisplay.value = paymentLink; // Menampilkan tautan pembayaran di input
+            openPaymentLinkBtn.href = paymentLink; // Mengatur href tombol "Open Payment Link"
+            paymentModal.classList.add('open'); // Menampilkan modal pembayaran
+        }
+
+        // Fungsi untuk menutup modal pembayaran
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('open'); // Menyembunyikan modal pembayaran
+        }
+
+        // Fungsi untuk menyalin tautan pembayaran ke clipboard
+        function copyPaymentLink() {
+            const paymentLinkDisplay = document.getElementById('payment-link-display');
+            paymentLinkDisplay.select(); // Memilih teks di input
+            document.execCommand('copy'); // Menyalin teks yang dipilih
+            showInfoModal('Link Copied!', 'Payment link has been copied to your clipboard.'); // Menampilkan notifikasi
+        }
+
+        // Fungsi untuk membuka/menutup form analisis
+        function toggleForm(formId) {
+            const form = document.getElementById(formId);
+            const allForms = document.querySelectorAll('.analysis-form');
+            
+            // Tutup semua form lain terlebih dahulu
+            allForms.forEach(f => {
+                if (f.id !== formId) {
+                    f.classList.remove('open');
+                    f.style.maxHeight = '0';
+                }
+            });
+            
+            // Buka/tutup form yang dipilih
+            if (form.classList.contains('open')) {
+                form.classList.remove('open');
+                form.style.maxHeight = '0';
+            } else {
+                form.classList.add('open');
+                form.style.maxHeight = '500px'; // Atur tinggi maksimal untuk transisi
+                
+                // Gulirkan ke form dengan sedikit offset dari header
+                setTimeout(() => {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+
+        // Fungsi utama untuk menangani alur analisis Amazon
+        async function handleAmazonAnalysis(event) {
+            event.preventDefault(); // Mencegah pengiriman form default
+
+            const loadingState = document.getElementById('loading-state');
+            const loadingTitle = document.getElementById('loading-title');
+            const loadingMessage = document.getElementById('loading-message');
+            const progressBar = document.getElementById('progress-bar');
+            const submitButton = event.submitter; // Mendapatkan tombol yang memicu submit
+
+            let progressInterval; // Deklarasi variabel di luar try/catch agar bisa diakses di finally
+
+            try {
+                // Nonaktifkan tombol submit selama proses
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `<i class="fas fa-spinner animate-spin mr-2"></i> Processing...`;
+                    submitButton.classList.add('opacity-75', 'cursor-not-allowed');
+                }
+
+                const amazonUrl = document.getElementById('amazon-url').value;
+                if (!amazonUrl) {
+                    showInfoModal('Input Required', 'Please enter an Amazon Product URL.');
+                    return; // Hentikan eksekusi jika input kosong
+                }
+
+                const dataToSendForPayment = {
+                    productUrl: amazonUrl,
+                    options: {
+                        sentiment: document.getElementById('sentiment').checked,
+                        themes: document.getElementById('themes').checked,
+                        competitors: document.getElementById('competitors').checked,
+                        timeline: document.getElementById('timeline').checked
+                    }
+                };
+
+                // Tahap 1: Meminta tautan pembayaran
+                loadingTitle.innerText = 'Generating Payment Link';
+                loadingMessage.innerText = 'Please wait while we prepare your payment link.';
+                loadingState.classList.remove('hidden');
+                progressBar.style.width = '0%'; // Reset progress bar
+
+                // URL Webhook N8N untuk membuat tautan pembayaran
+                // !!! GANTI DENGAN URL WEBHOOK N8N ASLI ANDA UNTUK PEMBUATAN TAUTAN PEMBAYARAN !!!
+                const paymentWebhookUrl = 'https://concise-obliging-falcon.ngrok-free.app/webhook-test/payment_link'; 
+
+                // Validasi URL webhook
+                if (!paymentWebhookUrl || paymentWebhookUrl === 'YOUR_N8N_PAYMENT_WEBHOOK_URL_HERE') {
+                    throw new Error('Payment webhook URL is not configured. Please update the code.');
+                }
+
+
+                // Mulai simulasi progress bar untuk tahap pembayaran
+                let progress = 0; // Deklarasi ulang progress untuk setiap tahap
+                progressInterval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress > 90) progress = 90; // Berhenti di 90% sampai respons diterima
+                    progressBar.style.width = `${progress}%`;
+                }, 200);
+
+                const paymentResponse = await fetch(paymentWebhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dataToSendForPayment),
+                });
+
+                clearInterval(progressInterval); // Hentikan progress bar pembayaran
+                
+                if (!paymentResponse.ok) {
+                    const errorText = await paymentResponse.text();
+                    throw new Error(`Server error during payment link generation: ${paymentResponse.status} ${paymentResponse.statusText} - ${errorText}`);
+                }
+
+                const paymentData = await paymentResponse.json();
+                const paymentLink = paymentData.paymentLink; // Asumsi N8N mengirimkan 'paymentLink'
+
+                if (!paymentLink) {
+                    throw new Error('Payment link not received from server response.');
+                }
+
+                // Selesaikan progress bar pembayaran
+                progressBar.style.width = '100%';
+                loadingState.classList.add('hidden'); // Sembunyikan modal loading awal
+
+                // Tahap 2: Menampilkan tautan pembayaran dan menunggu konfirmasi
+                showPaymentModal(paymentLink);
+
+                // Tambahkan event listener ke tombol "Open Payment Link" di modal pembayaran
+                // Ini akan memicu tahap analisis setelah pembayaran "berhasil" (simulasi)
+                const openPaymentLinkButton = document.getElementById('open-payment-link-btn');
+                // Pastikan event listener hanya ditambahkan sekali untuk menghindari duplikasi
+                openPaymentLinkButton.onclick = async (e) => {
+                    e.preventDefault(); // Mencegah link langsung membuka tab baru secara default
+                    window.open(paymentLink, '_blank'); // Buka link di tab baru
+
+                    closePaymentModal(); // Tutup modal pembayaran
+                    
+                    // Tahap 3: Menampilkan loading analisis setelah pembayaran berhasil (simulasi)
+                    loadingTitle.innerText = 'Analyzing Data';
+                    loadingMessage.innerText = 'Our AI is processing your request and gathering insights. This may take a few moments.';
+                    loadingState.classList.remove('hidden');
+                    progressBar.style.width = '0%'; // Reset progress bar untuk analisis
+
+                    // Mulai simulasi progress bar untuk tahap analisis
+                    progress = 0; // Reset progress untuk tahap analisis
+                    progressInterval = setInterval(() => {
+                        progress += Math.random() * 10;
+                        if (progress > 90) progress = 90;
+                        progressBar.style.width = `${progress}%`;
+                    }, 200);
+
+                    // URL Webhook N8N untuk memulai analisis data sebenarnya
+                    // !!! GANTI DENGAN URL WEBHOOK N8N ASLI ANDA UNTUK ANALISIS DATA !!!
+                    const analysisWebhookUrl = 'https://concise-obliging-falcon.ngrok-free.app/webhook-test/web_server'; 
+
+                    // Validasi URL webhook
+                    if (!analysisWebhookUrl || analysisWebhookUrl === 'YOUR_N8N_ANALYSIS_WEBHOOK_URL_HERE') {
+                        throw new Error('Analysis webhook URL is not configured. Please update the code.');
+                    }
+
+                    try {
+                        const analysisResponse = await fetch(analysisWebhookUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(dataToSendForPayment), // Kirim data form yang sama
+                        });
+
+                        clearInterval(progressInterval); // Hentikan progress bar analisis
+
+                        if (!analysisResponse.ok) {
+                            const errorText = await analysisResponse.text();
+                            throw new Error(`Server error during analysis: ${analysisResponse.status} ${analysisResponse.statusText} - ${errorText}`);
+                        }
+
+                        const resultData = await analysisResponse.json();
+                        console.log('Analysis Result:', resultData); // Log hasil analisis sebenarnya
+
+                        // Selesaikan progress bar analisis
+                        progressBar.style.width = '100%';
+
+                        // Sembunyikan modal loading setelah analisis selesai
+                        setTimeout(() => {
+                            loadingState.classList.add('hidden');
+                            // Tahap 4: Menampilkan hasil analisis
+                            updateResultsUI(resultData, 'amazon'); // Perbarui UI dengan hasil nyata
+                        }, 500);
+
+                    } catch (analysisError) {
+                        console.error('Error during analysis:', analysisError);
+                        showInfoModal('Analysis Failed', `There was an error during analysis: ${analysisError.message}. Please try again.`);
+                        clearInterval(progressInterval);
+                        loadingState.classList.add('hidden');
+                    }
+                };
+
+            } catch (error) {
+                // Tangani error yang terjadi pada tahap pembuatan tautan pembayaran atau validasi awal
+                console.error('Error in payment link generation or initial setup:', error);
+                showInfoModal('Process Failed', `There was an error: ${error.message}. Please try again.`);
+                clearInterval(progressInterval); // Pastikan progress bar berhenti
+                loadingState.classList.add('hidden'); // Pastikan modal loading disembunyikan
+            } finally {
+                // Selalu aktifkan kembali tombol submit setelah seluruh proses selesai atau terjadi error
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = `Analyze Product <i class="fas fa-arrow-right ml-2"></i>`;
+                    submitButton.classList.remove('opacity-75', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        // Fungsi placeholder untuk alat lain (Meta dan Sosial Media)
+        // Anda bisa mengimplementasikan alur serupa untuk ini jika diperlukan.
+        async function runAnalysis(event, toolType) {
+            event.preventDefault();
+            showInfoModal('Feature Not Fully Implemented', `Analysis for ${toolType} is not yet fully integrated with the payment flow. Please try Amazon Analysis.`);
+            // Placeholder untuk menunjukkan loading dan hasil dummy
+            // Anda bisa menghapus ini setelah mengimplementasikan alur pembayaran untuk alat ini
+            const loadingState = document.getElementById('loading-state');
+            const progressBar = document.getElementById('progress-bar');
+            const loadingTitle = document.getElementById('loading-title');
+            const loadingMessage = document.getElementById('loading-message');
+
+            loadingTitle.innerText = 'Analyzing Data';
+            loadingMessage.innerText = 'Our AI is processing your request and gathering insights. This may take a few moments.';
+            loadingState.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loadingState.classList.add('hidden');
+                        updateResultsUI({}, toolType); // Tampilkan hasil dummy
+                    }, 500);
+                }
+            }, 300);
+        }
+
+
+        // Fungsi untuk memperbarui UI hasil analisis
+        // Di sini Anda akan mengisi data dari 'resultData' yang sebenarnya
+        function updateResultsUI(resultData, toolType) {
+            // Sembunyikan semua bagian hasil terlebih dahulu
+            const allResults = document.querySelectorAll('.results-section');
+            allResults.forEach(result => {
+                result.classList.remove('show');
+            });
+            
+            const resultsSection = document.getElementById(`${toolType}-results`);
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+            // Contoh: Mengisi data untuk Amazon (Anda perlu menyesuaikannya dengan struktur resultData N8N Anda)
+            if (toolType === 'amazon' && resultData) {
+                // Asumsi resultData memiliki struktur seperti:
+                // {
+                //    productName: "Nama Produk",
+                //    averageRating: "4.5",
+                //    totalReviews: "1500",
+                //    sentiment: { positive: 0.75, neutral: 0.15, negative: 0.10 },
+                //    themes: [{ name: "Kualitas Suara", mentions: 0.60 }, ...],
+                //    competitorComparison: [...]
+                // }
+
+                document.getElementById('amazon-product-name').innerText = resultData.productName || 'N/A';
+                // Perbarui rating dan jumlah review jika ada di resultData
+                // Anda perlu logika untuk mengubah rating numerik menjadi bintang visual
+                // document.getElementById('amazon-rating-display').innerText = resultData.averageRating || 'N/A';
+                // document.getElementById('amazon-reviews-count').innerText = resultData.totalReviews ? `${resultData.totalReviews} reviews` : 'N/A';
+
+                // Perbarui grafik sentimen
+                if (resultData.sentiment) {
+                    document.querySelector('#amazon-results .bg-green-500').style.width = `${resultData.sentiment.positive * 100}%`;
+                    document.querySelector('#amazon-results .bg-yellow-500').style.width = `${resultData.sentiment.neutral * 100}%`;
+                    document.querySelector('#amazon-results .bg-red-500').style.width = `${resultData.sentiment.negative * 100}%`;
+                    document.querySelector('#amazon-results .text-sm.font-medium:nth-of-type(1)').innerText = `${(resultData.sentiment.positive * 100).toFixed(0)}% Positive`;
+                    document.querySelector('#amazon-results .text-sm.font-medium:nth-of-type(2)').innerText = `${(resultData.sentiment.neutral * 100).toFixed(0)}% Neutral`;
+                    document.querySelector('#amazon-results .text-sm.font-medium:nth-of-type(3)').innerText = `${(resultData.sentiment.negative * 100).toFixed(0)}% Negative`;
+                }
+
+                // Perbarui tema ulasan (ini akan lebih kompleks jika dinamis, contoh ini hanya dummy)
+                // Anda perlu membuat elemen-elemen ini secara dinamis berdasarkan resultData.themes
+                // Untuk saat ini, kita biarkan data dummy yang ada.
+
+                // Perbarui tabel perbandingan kompetitor (juga perlu dibuat dinamis)
+                // Untuk saat ini, kita biarkan data dummy yang ada.
+
+                // Perbarui rekomendasi (juga perlu dibuat dinamis)
+                // Untuk saat ini, kita biarkan data dummy yang ada.
+
+            } else if (toolType === 'meta' && resultData) {
+                // Logika untuk mengisi hasil Meta Ads
+                // document.getElementById('meta-page-name').innerText = resultData.pageName || 'N/A';
+                // ... dan seterusnya untuk bagian Meta Ads
+            } else if (toolType === 'social' && resultData) {
+                // Logika untuk mengisi hasil Social Media
+                // document.getElementById('social-profile-name').innerText = resultData.profileName || 'N/A';
+                // ... dan seterusnya untuk bagian Social Media
+            }
+            
+            // Tutup semua form yang terbuka
+            const allForms = document.querySelectorAll('.analysis-form');
+            allForms.forEach(form => {
+                form.classList.remove('open');
+                form.style.maxHeight = '0';
+            });
+        }
+
+        // Fungsi untuk menyembunyikan bagian hasil analisis
+        function hideResults(toolType) {
+            const resultsSection = document.getElementById(`${toolType}-results`);
+            resultsSection.classList.remove('show');
+        }
+    </script>
+</body>
+</html>
