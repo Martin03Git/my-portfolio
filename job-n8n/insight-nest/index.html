@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightNest | AI-Powered Marketing Analytics</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS Variables */
+        :root {
+            --primary: #6D28D9;
+            --secondary: #4C1D95;
+            --light: #FAF5FF;
+            --dark: #1E1B4B;
+            --accent: #A855F7;
+            --bg-light: #f0f0f7;
+            --shadow-light: #ffffff;
+            --shadow-dark: #d9d9e6;
+        }
+        
+        /* Base Styles */
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #333; /* Default text color */
+        }
+
+        /* Neumorphism Base Styles */
+        .neumorph {
+            border-radius: 20px;
+            background: var(--bg-light);
+            box-shadow:  8px 8px 16px var(--shadow-dark), 
+                        -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .neumorph-inset {
+            border-radius: 15px;
+            background: var(--bg-light);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), 
+                        inset -4px -4px 8px var(--shadow-light);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .neumorph-btn {
+            border-radius: 12px;
+            background: var(--bg-light);
+            box-shadow:  4px 4px 8px var(--shadow-dark), 
+                        -4px -4px 8px var(--shadow-light);
+            transition: all 0.2s ease;
+            /* Perbaikan untuk tombol: */
+            display: inline-flex; /* Memungkinkan flexbox untuk konten */
+            align-items: center; /* Pusatkan vertikal konten */
+            justify-content: center; /* Pusatkan horizontal konten */
+            text-align: center; /* Pastikan teks tetap di tengah */
+            flex-wrap: wrap; /* Izinkan teks untuk melipat jika terlalu panjang */
+            min-height: 44px; /* Beri tinggi minimum untuk mengakomodasi teks yang melipat */
+            width: auto; /* Izinkan lebar menyesuaikan konten */
+        }
+        
+        .neumorph-btn:hover {
+            box-shadow:  6px 6px 12px var(--shadow-dark), 
+                        -6px -6px 12px var(--shadow-light);
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+        
+        .neumorph-btn:active {
+            box-shadow: inset 2px 2px 4px var(--shadow-dark), 
+                        inset -2px -2px 4px var(--shadow-light);
+            transform: translateY(0); /* Press effect */
+        }
+
+        /* Specific Neumorphism for inputs (kept for consistency, though not used on this page) */
+        input[type="text"].neumorph-inset {
+            border: none; /* Remove default border */
+            padding: 0.75rem 1rem; /* Adjust padding */
+            font-size: 1rem;
+            color: #4A5568; /* Darker text for inputs */
+        }
+        input[type="text"].neumorph-inset:focus {
+            outline: none;
+            box-shadow: inset 2px 2px 5px var(--shadow-dark), 
+                        inset -2px -2px 5px var(--shadow-light),
+                        0 0 0 2px var(--accent); /* Focus ring */
+        }
+
+        /* Progress Bar (kept for consistency, though not used on this page) */
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: var(--shadow-dark); /* Lighter background for empty bar */
+            overflow: hidden; /* Ensure fill stays within bounds */
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background-color: var(--accent);
+            transition: width 0.5s ease-out; /* Smooth fill animation */
+        }
+
+        /* Tooltip (kept for consistency, though not used on this page) */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 240px; /* Wider tooltip */
+            background-color: white;
+            color: var(--dark);
+            text-align: center;
+            border-radius: 8px; /* More rounded */
+            padding: 10px;
+            position: absolute;
+            z-index: 10; /* Higher z-index */
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15); /* Stronger shadow */
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Star Rating (kept for consistency, though not used on this page) */
+        .star-rating {
+            color: #FFD700; /* Gold color for stars */
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slide-in-left {
+            animation: slideInFromLeft 0.7s ease-out forwards;
+        }
+
+        @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slide-in-right {
+            animation: slideInFromRight 0.7s ease-out forwards;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-pop-in {
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+        /* Loading Spinner (kept for consistency, though not used on this page) */
+        .loading-spinner {
+            border: 4px solid rgba(109, 40, 217, 0.2); /* Light purple */
+            border-top: 4px solid var(--primary); /* Primary purple */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom Modal Styles (kept for consistency, though not used on this page) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .modal-overlay.open .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%; /* Start off-screen */
+            width: 250px;
+            height: 100%;
+            background: var(--bg-light);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 50;
+            transition: right 0.3s ease-in-out;
+            padding-top: 4rem;
+        }
+        .mobile-menu.open {
+            right: 0;
+        }
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .mobile-menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .neumorph {
+                border-radius: 15px;
+                box-shadow:  5px 5px 10px var(--shadow-dark), 
+                            -5px -5px 10px var(--shadow-light);
+            }
+            .neumorph-inset {
+                border-radius: 10px;
+                box-shadow: inset 3px 3px 6px var(--shadow-dark), 
+                            inset -3px -3px 6px var(--shadow-light);
+            }
+            .neumorph-btn {
+                border-radius: 10px;
+                box-shadow:  3px 3px 6px var(--shadow-dark), 
+                            -3px -3px 6px var(--shadow-light);
+            }
+            .hero-title {
+                font-size: 2.5rem; /* Adjust font size for mobile hero */
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .feature-title { /* New class for feature titles */
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 640px) { /* Small mobile devices */
+            .hero-title {
+                font-size: 2rem;
+            }
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+            .neumorph-btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Custom Modal for Alerts (Still present for general use, though not directly triggered by this page's content) -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content neumorph">
+            <h3 id="modal-title" class="text-xl font-semibold text-gray-800 mb-4"></h3>
+            <p id="modal-message" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="neumorph-btn px-6 py-2 bg-purple-600 text-white font-medium rounded-lg hover:shadow-none transition">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2 animate-slide-in-left">
+                <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">InsightNest</h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-6 animate-slide-in-right"> <!-- Added items-center here -->
+                <a href="index.html" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2">Home</a> <!-- Added py-2 -->
+                <a href="analysisTools.html" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2">Tools</a> <!-- Added py-2 -->
+                <a href="#" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2">Features</a> <!-- Added py-2 -->
+                <a href="#" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2">Contact</a> <!-- Added py-2 -->
+                <!-- Removed Sign Up button -->
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Mobile Menu Sidebar -->
+    <div id="mobile-menu" class="mobile-menu">
+        <nav class="flex flex-col p-6 space-y-4">
+            <a href="#home" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2" onclick="toggleMobileMenu()">Home</a>
+            <a href="analysis-results.html" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2" onclick="toggleMobileMenu()">Tools</a>
+            <a href="#features" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2" onclick="toggleMobileMenu()">Features</a>
+            <a href="#contact" class="text-gray-700 hover:text-purple-600 transition duration-200 py-2" onclick="toggleMobileMenu()">Contact</a>
+            <!-- Removed Sign Up button -->
+        </nav>
+    </div>
+
+    <!-- 1. Hero Section -->
+    <section id="home" class="py-16 md:py-24 px-4 overflow-hidden">
+        <div class="container mx-auto flex flex-col md:flex-row items-center gap-8">
+            <div class="md:w-1/2 animate-fade-in" style="animation-delay: 0.2s;">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 hero-title">AI-Powered Marketing <span class="text-purple-600">Insights</span> Made Simple</h2>
+                <p class="text-lg text-gray-600 mb-8 hero-subtitle">Transform raw data into actionable strategies with our N8N-powered analytics platform. Automate your marketing analysis and stay ahead of competitors.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="analysis-results.html" class="neumorph-btn px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-lg hover:shadow-none transition animate-pop-in" style="animation-delay: 0.6s;">Start Analyzing Now</a>
+                    <a href="analysis-results.html" class="neumorph-btn px-6 py-3 text-purple-600 font-medium rounded-lg hover:shadow-none transition animate-pop-in" style="animation-delay: 0.8s;">Explore Tools</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 mt-10 md:mt-0 animate-fade-in" style="animation-delay: 0.4s;">
+                <div class="neumorph p-6 rounded-2xl">
+                    <div class="neumorph-inset p-4 rounded-xl">
+                        <img src="https://placehold.co/600x400/F3F4F6/6B7280?text=Dashboard+Preview" alt="Dashboard Preview" class="w-full rounded-lg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Brief Overview & Key Features/Benefits Section -->
+    <section id="overview-benefits" class="py-16 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12 animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Unlock Your Marketing Potential</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">InsightNest is an AI-powered platform designed to simplify your marketing analysis. Leveraging N8N for automation, we provide deep, actionable insights across various channels, helping you make smarter decisions and outperform your competition.</p>
+            </div>
+            
+            <!-- Key Features/Benefits -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="neumorph p-6 rounded-2xl text-center animate-pop-in" style="animation-delay: 0.2s;">
+                    <i class="fas fa-robot text-purple-600 text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">AI-Powered Accuracy</h3>
+                    <p class="text-gray-600">Leverage advanced AI models for precise and deep analysis, uncovering insights human analysis might miss.</p>
+                </div>
+                <div class="neumorph p-6 rounded-2xl text-center animate-pop-in" style="animation-delay: 0.4s;">
+                    <i class="fas fa-clock text-purple-600 text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Time-Saving Automation</h3>
+                    <p class="text-gray-600">Automate tedious data scraping and analysis processes, freeing up your team for strategic work.</p>
+                </div>
+                <div class="neumorph p-6 rounded-2xl text-center animate-pop-in" style="animation-delay: 0.6s;">
+                    <i class="fas fa-lightbulb text-purple-600 text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Actionable Insights</h3>
+                    <p class="text-gray-600">Receive clear, concise recommendations that you can immediately apply to improve your marketing campaigns.</p>
+                </div>
+                <div class="neumorph p-6 rounded-2xl text-center animate-pop-in" style="animation-delay: 0.8s;">
+                    <i class="fas fa-chart-bar text-purple-600 text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Competitive Advantage</h3>
+                    <p class="text-gray-600">Stay ahead by understanding market trends and competitor strategies faster than ever before.</p>
+                </div>
+                <div class="neumorph p-6 rounded-2xl text-center animate-pop-in" style="animation-delay: 1.0s;">
+                    <i class="fas fa-shield-alt text-purple-600 text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Secure & Reliable</h3>
+                    <p class="text-gray-600">Your data is processed securely with robust infrastructure, ensuring privacy and reliability.</p>
+                </div>
+                <div class="neumorph p-6 rounded-2xl text-center animate-pop-in" style="animation-delay: 1.2s;">
+                    <i class="fas fa-tachometer-alt text-purple-600 text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Scalable Solutions</h3>
+                    <p class="text-gray-600">Whether you're a small business or a large enterprise, InsightNest scales to meet your analytical needs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Tool Showcase Section -->
+    <section id="tools" class="py-16 bg-white overflow-hidden">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12 animate-fade-in">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Our Core Analytics Tools</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Explore the powerful, AI-driven tools designed to give you comprehensive marketing insights.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Tool 1: Amazon Sentiment Analysis -->
+                <div class="neumorph p-6 rounded-2xl animate-pop-in" style="animation-delay: 0.2s;">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color: rgba(168, 85, 247, 0.1);">
+                        <i class="fas fa-star text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2 feature-title">Amazon Sentiment Analysis</h3>
+                    <p class="text-gray-600 mb-4">Understand customer opinions and emotions from product reviews to improve your offerings. Get insights on user discovery journeys and average ratings.</p>
+                    <ul class="list-disc pl-5 text-gray-700 text-sm space-y-1">
+                        <li>Scrap all review data</li>
+                        <li>Sentiment analysis (last 6 months)</li>
+                        <li>User discovery journey</li>
+                        <li>Average rating & key insights</li>
+                    </ul>
+                    <div class="mt-6 text-center">
+                        <a href="analysis-results.html#tool1" class="neumorph-btn px-5 py-2 text-sm text-purple-600 font-medium rounded-lg hover:shadow-none transition">
+                            Learn More & Analyze
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Tool 2: Meta Ads Analysis -->
+                <div class="neumorph p-6 rounded-2xl animate-pop-in" style="animation-delay: 0.4s;">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color: rgba(168, 85, 247, 0.1);">
+                        <i class="fas fa-ad text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2 feature-title">Meta Ads Analysis</h3>
+                    <p class="text-gray-600 mb-4">Uncover competitor strategies and optimize your ad spend. Our AI analyzes visual and messaging components, breaking down creative execution for actionable optimization areas.</p>
+                    <ul class="list-disc pl-5 text-gray-700 text-sm space-y-1">
+                        <li>Visual & messaging analysis</li>
+                        <li>Creative execution breakdown</li>
+                        <li>Areas for optimization</li>
+                        <li>Strategic opportunities</li>
+                    </ul>
+                    <div class="mt-6 text-center">
+                        <a href="analysis-results.html#tool2" class="neumorph-btn px-5 py-2 text-sm text-purple-600 font-medium rounded-lg hover:shadow-none transition">
+                            Learn More & Analyze
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Tool 3: Social Media Content Analysis -->
+                <div class="neumorph p-6 rounded-2xl animate-pop-in" style="animation-delay: 0.6s;">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color: rgba(168, 85, 247, 0.1);">
+                        <i class="fas fa-hashtag text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2 feature-title">Social Content Optimization</h3>
+                    <p class="text-gray-600 mb-4">Boost your presence on Instagram, TikTok, and Pinterest. Analyze engagement rates, content formats, brand tone, and visual storytelling to refine your social strategy.</p>
+                    <ul class="list-disc pl-5 text-gray-700 text-sm space-y-1">
+                        <li>Followers & engagement rate</li>
+                        <li>Content format effectiveness</li>
+                        <li>Brand tone & visual storytelling</li>
+                        <li>Consistency & audience alignment</li>
+                    </ul>
+                    <div class="mt-6 text-center">
+                        <a href="analysis-results.html#tool3" class="neumorph-btn px-5 py-2 text-sm text-purple-600 font-medium rounded-lg hover:shadow-none transition">
+                            Learn More & Analyze
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Call to Action Section -->
+    <section class="py-16 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
+        <div class="container mx-auto px-4 text-center">
+            <div class="neumorph p-8 md:p-12 rounded-2xl max-w-4xl mx-auto animate-fade-in" style="animation-delay: 0.2s;">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Ready to Transform Your Marketing Strategy?</h2>
+                <p class="text-gray-600 mb-8 max-w-2xl mx-auto">Join thousands of marketers who use InsightNest to gain competitive intelligence and make data-driven decisions</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="analysis-results.html" class="neumorph-btn px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-lg hover:shadow-none transition animate-pop-in" style="animation-delay: 0.4s;">Get Started for Free</a>
+                    <a href="analysis-results.html" class="neumorph-btn px-6 py-3 text-purple-600 font-medium rounded-lg hover:shadow-none transition animate-pop-in" style="animation-delay: 0.6s;">Schedule Demo</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-chart-line text-purple-400 text-2xl"></i>
+                        <h3 class="text-xl font-bold">InsightNest</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">AI-powered marketing analytics platform for data-driven professionals.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Features</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">API</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Integrations</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Guides</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Legal</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 InsightNest. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Custom Modal Functions (kept for general use) ---
+        function showModal(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('custom-modal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.remove('open');
+        }
+
+        // --- Mobile Menu Functions ---
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            mobileMenu.classList.toggle('open');
+            mobileMenuOverlay.classList.toggle('open');
+        }
+
+        document.getElementById('mobile-menu-button').addEventListener('click', toggleMobileMenu);
+
+        // All analysis-related functions and elements have been removed from this page.
+        // They will be implemented in analysis-results.html
+    </script>
+</body>
+</html>
