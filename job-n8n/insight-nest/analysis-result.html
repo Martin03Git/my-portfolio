@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightNest | Amazon Sentiment Analysis Result</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --positive: #10B981; /* Hijau */
+            --neutral: #F59E0B; /* Kuning */
+            --negative: #EF4444; /* Merah */
+            --bg-color: #E4E4E7; /* Warna latar belakang body */
+            --card-bg: #F4F4F5; /* Warna latar belakang kartu */
+            --shadow-light: #ffffff;
+            --shadow-dark: #d4d4d8;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: #1F2937;
+        }
+        
+        .neumorph {
+            border-radius: 20px;
+            background: var(--card-bg);
+            box-shadow:  8px 8px 16px var(--shadow-dark), 
+                        -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .neumorph-inset {
+            border-radius: 20px;
+            background: var(--card-bg);
+            box-shadow: inset 8px 8px 16px var(--shadow-dark), 
+                        inset -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .neumorph-btn {
+            border-radius: 12px;
+            background: var(--card-bg);
+            box-shadow:  4px 4px 8px var(--shadow-dark),
+                         -4px -4px 8px var(--shadow-light);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-wrap: wrap;
+            min-height: 44px;
+            width: auto;
+        }
+
+        .neumorph-btn:hover {
+            box-shadow:  6px 6px 12px var(--shadow-dark),
+                         -6px -6px 12px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .neumorph-btn:active {
+            box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                         inset -2px -2px 4px var(--shadow-light);
+            transform: translateY(0);
+        }
+
+        .sentiment-positive {
+            background-color: var(--positive);
+            color: white;
+        }
+        
+        .sentiment-neutral {
+            background-color: var(--neutral);
+            color: white;
+        }
+        
+        .sentiment-negative {
+            background-color: var(--negative);
+            color: white;
+        }
+        
+        .text-positive {
+            color: var(--positive);
+        }
+        
+        .text-neutral {
+            color: var(--neutral);
+        }
+        
+        .text-negative {
+            color: var(--negative);
+        }
+        
+        /* Perbaikan untuk posisi angka persenan di tengah gauge */
+        #gaugeValue {
+            position: absolute;
+            top: 50%; /* Menggunakan 50% penuh */
+            left: 50%;
+            transform: translate(-50%, -50%); /* Metode centering yang paling akurat */
+            z-index: 1; 
+            line-height: 1; /* Mengatur line-height agar lebih pas di tengah vertikal */
+            font-size: 2rem; /* Memastikan ukuran font konsisten */
+        }
+
+        /* Perbaikan untuk perataan teks Key Insights */
+        .key-insight-item {
+            display: flex; /* Menggunakan flexbox */
+            align-items: center; /* Mengatur item untuk sejajar di tengah secara vertikal */
+        }
+        .key-insight-item .flex-shrink-0 {
+            margin-top: 0; 
+            padding-top: 0; 
+        }
+        .key-insight-item .ml-3 {
+            padding-top: 0; 
+        }
+
+        /* Perbaikan untuk perataan angka persenan di bawah bar chart */
+        .sentiment-distribution-legend {
+            display: flex; 
+            justify-content: space-around; 
+            width: 100%; 
+        }
+        .sentiment-distribution-legend > div { 
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            text-align: center; 
+            flex: 1; 
+        }
+
+        /* Gaya untuk pembungkus gauge: HILANGKAN NEUMORPHISM DARI PEMBUNGKUS */
+        .gauge-container-wrapper {
+            position: relative; 
+            width: 128px; 
+            height: 128px; 
+            margin-bottom: 1rem; 
+            border-radius: 0; 
+            background: transparent; 
+            box-shadow: none; 
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Pastikan canvas di dalam wrapper tidak memiliki bayangan sendiri */
+        .gauge-container-wrapper canvas {
+            background-color: transparent; 
+        }
+
+        @media (max-width: 768px) {
+            .neumorph {
+                box-shadow:  4px 4px 8px var(--shadow-dark), 
+                            -4px -4px 8px var(--shadow-light);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="py-6 px-4 sm:px-6 lg:px-8 bg-white shadow-sm">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full neumorph flex items-center justify-center mr-4">
+                    <i class="fas fa-chart-pie text-indigo-500 text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">Sentiment Analysis Report</h1>
+            </div>
+            <a href="insightnest-v2-tools.html" class="neumorph-btn px-4 py-2 text-sm text-gray-700">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Tools
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Product Info -->
+            <div class="neumorph p-6 mb-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center">
+                    <div class="w-32 h-32 flex-shrink-0 neumorph-inset flex items-center justify-center mb-4 md:mb-0 mr-0 md:mr-6">
+                        <i class="fas fa-headphones text-indigo-400 text-5xl"></i>
+                    </div>
+                    <div>
+                        <h2 id="product-name" class="text-xl font-bold text-gray-800 mb-2">Wireless Bluetooth Headphones Ultra HD Sound</h2>
+                        <div class="flex items-center mb-2">
+                            <div class="flex items-center">
+                                <span id="product-rating" class="ml-1 text-gray-600 font-medium">4.6</span>
+                                <div id="star-rating" class="flex ml-1">
+                                    <!-- Stars will be dynamically generated -->
+                                </div>
+                                <span id="review-count" class="ml-2 text-gray-600">(2,345 reviews)</span>
+                            </div>
+                        </div>
+                        <p id="product-description" class="text-gray-600">Premium wireless headphones with noise cancellation and 30-hour battery life</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sentiment Analysis Results -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Overall Sentiment -->
+                <div class="neumorph p-6 rounded-2xl flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Overall Sentiment</h3>
+                    <!-- Pembungkus baru untuk gauge dengan desain neumorphism -->
+                    <div class="gauge-container-wrapper">
+                        <canvas id="sentimentGauge" width="128" height="128"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="gaugeValue" class="text-2xl font-bold">82%</span>
+                        </div>
+                    </div>
+                    <div id="overallSentimentText" class="px-4 py-2 rounded-full text-white font-medium mb-4 sentiment-positive">
+                        Mostly Positive
+                    </div>
+                    <div class="text-center text-gray-600">
+                        <p>Based on analysis of <span id="total-reviews-summary">2,345</span> recent reviews</p>
+                    </div>
+                </div>
+
+                <!-- Sentiment Distribution -->
+                <div class="neumorph p-6 rounded-2xl">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Sentiment Distribution</h3>
+                    <div class="h-48 mb-4">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 sentiment-distribution-legend">
+                        <div class="flex flex-col items-center">
+                            <div class="w-4 h-4 rounded-full bg-green-500 mb-1"></div>
+                            <span class="text-sm text-gray-600">Positive</span>
+                            <span id="positive-percent" class="text-sm font-medium">82%</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-4 h-4 rounded-full bg-yellow-500 mb-1"></div>
+                            <span class="text-sm text-gray-600">Neutral</span>
+                            <span id="neutral-percent" class="text-sm font-medium">12%</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-4 h-4 rounded-full bg-red-500 mb-1"></div>
+                            <span class="text-sm text-gray-600">Negative</span>
+                            <span id="negative-percent" class="text-sm font-medium">6%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Insights -->
+                <div class="neumorph p-6 rounded-2xl">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Key Insights</h3>
+                    <div id="key-insights-list" class="space-y-4">
+                        <!-- Insights will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Section: Review Themes and Keywords -->
+            <div class="neumorph p-6 rounded-2xl mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-tags mr-2 text-indigo-500"></i> Review Themes & Keywords
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-3">Top Positive Themes</h4>
+                        <div id="positive-themes" class="space-y-3">
+                            <!-- Positive themes will be dynamically generated -->
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-3">Top Negative Themes</h4>
+                        <div id="negative-themes" class="space-y-3">
+                            <!-- Negative themes will be dynamically generated -->
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h4 class="font-medium text-gray-800 mb-3">Frequent Keywords by Sentiment</h4>
+                    <div class="neumorph-inset p-4 rounded-lg">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="py-2 px-1 text-sm font-semibold text-positive">Positive</th>
+                                    <th class="py-2 px-1 text-sm font-semibold text-neutral">Neutral</th>
+                                    <th class="py-2 px-1 text-sm font-semibold text-negative">Negative</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keywords-table-body">
+                                <!-- Keywords will be dynamically generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Section: Rating Trend Over Time -->
+            <div class="neumorph p-6 rounded-2xl mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-chart-line mr-2 text-indigo-500"></i> Rating Trend Over Time
+                </h3>
+                <div class="h-64">
+                    <canvas id="ratingTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- New Section: Actionable Recommendations -->
+            <div class="neumorph p-6 rounded-2xl mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-lightbulb mr-2 text-indigo-500"></i> Actionable Recommendations
+                </h3>
+                <div id="recommendations-list" class="space-y-4">
+                    <!-- Recommendations will be dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Top Reviews -->
+            <div class="neumorph p-6 rounded-2xl mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Featured Reviews</h3>
+                <div id="featured-reviews-list" class="space-y-4">
+                    <!-- Reviews will be dynamically generated -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-6 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div class="container mx-auto text-center text-gray-500 text-sm">
+            <p>© 2023 InsightNest. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data simulasi untuk mengisi halaman.
+        // Di aplikasi nyata, data ini akan datang dari server (N8N).
+        const simulatedAnalysisData = {
+            product: {
+                name: "Wireless Bluetooth Headphones Ultra HD Sound",
+                imageUrl: "https://placehold.co/128x128/F3F4F6/6B7280?text=Product",
+                rating: 4.6,
+                totalReviews: 2345,
+                description: "Premium wireless headphones with noise cancellation and 30-hour battery life."
+            },
+            sentiment: {
+                positive: 82,
+                neutral: 12,
+                negative: 6,
+                overallText: "Mostly Positive"
+            },
+            keyInsights: [
+                { type: 'positive', text: '95% of reviews mention "excellent sound quality" as a positive aspect.' },
+                { type: 'positive', text: 'Battery life exceeds expectations for 87% of customers.' },
+                { type: 'negative', text: '12% of reviews mention discomfort after prolonged use.' },
+                { type: 'neutral', text: 'Some users find the price slightly high for the features offered.' }
+            ],
+            themes: {
+                positive: [
+                    { name: "Kualitas Suara", percentage: 48 },
+                    { name: "Daya Tahan Baterai", percentage: 32 },
+                    { name: "Konektivitas Bluetooth", percentage: 25 }
+                ],
+                negative: [
+                    { name: "Kenyamanan", percentage: 15 },
+                    { name: "Kualitas Bangun", percentage: 10 },
+                    { name: "Dukungan Pelanggan", percentage: 7 }
+                ]
+            },
+            keywords: {
+                positive: ["suara jernih", "bass kuat", "nyaman dipakai", "baterai awet", "mudah terhubung"],
+                neutral: ["harga lumayan", "standar", "cukup baik", "tidak istimewa"],
+                negative: ["sakit telinga", "cepat rusak", "putus-putus", "layanan buruk"]
+            },
+            ratingTrend: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul'],
+                data: [4.2, 4.3, 4.5, 4.6, 4.5, 4.7, 4.6]
+            },
+            featuredReviews: [
+                {
+                    sentiment: 'positive',
+                    user: 'John D.',
+                    rating: 5.0,
+                    text: 'The sound quality on these headphones is outstanding. The noise cancellation works perfectly, and the battery life easily lasts through long flights. Very comfortable for extended wear.'
+                },
+                {
+                    sentiment: 'neutral',
+                    user: 'Sarah T.',
+                    rating: 3.0,
+                    text: 'Decent headphones overall. The sound is good, but not amazing for the price. Battery life meets expectations. They\'re comfortable for a few hours but tend to hurt my ears after longer sessions.'
+                },
+                {
+                    sentiment: 'negative',
+                    user: 'Michael R.',
+                    rating: 1.0,
+                    text: 'After only 2 months of use, the right earcup stopped working. Customer service was unhelpful in resolving the issue. For the price, I expected much better quality and support.'
+                }
+            ],
+            recommendations: [
+                { text: "Fokuskan kampanye pemasaran pada 'Kualitas Suara' dan 'Daya Tahan Baterai' karena ini adalah poin kuat produk Anda.", icon: "fas fa-bullhorn" },
+                { text: "Lakukan riset untuk meningkatkan kenyamanan produk, terutama untuk penggunaan jangka panjang, karena ini adalah area keluhan utama.", icon: "fas fa-headset" },
+                { text: "Perkuat tim dukungan pelanggan dan proses penanganan garansi untuk mengatasi masalah kualitas bangun dengan lebih efektif.", icon: "fas fa-headset" },
+                { text: "Pertimbangkan penyesuaian harga atau penambahan fitur premium untuk membenarkan harga di mata pelanggan netral.", icon: "fas fa-dollar-sign" }
+            ]
+        };
+
+        let sentimentGaugeChart, sentimentBarChart, ratingTrendLineChart;
+
+        // Fungsi untuk menginisialisasi semua grafik dan mengisi data
+        function initializeChartsAndData(data) {
+            // Hapus chart yang ada jika sudah diinisialisasi untuk mencegah duplikasi
+            if (sentimentGaugeChart) sentimentGaugeChart.destroy();
+            if (sentimentBarChart) sentimentBarChart.destroy();
+            if (ratingTrendLineChart) ratingTrendLineChart.destroy();
+
+            // --- Bagian Produk Info ---
+            document.getElementById('product-name').innerText = data.product.name;
+            document.getElementById('product-description').innerText = data.product.description;
+            document.getElementById('product-rating').innerText = data.product.rating.toFixed(1);
+            document.getElementById('review-count').innerText = `(${data.product.totalReviews.toLocaleString()} reviews)`;
+            
+            // Generate bintang rating
+            const starRatingContainer = document.getElementById('star-rating');
+            starRatingContainer.innerHTML = ''; // Bersihkan bintang lama
+            const fullStars = Math.floor(data.product.rating);
+            const hasHalfStar = data.product.rating % 1 !== 0;
+            for (let i = 0; i < fullStars; i++) {
+                starRatingContainer.innerHTML += `<i class="fas fa-star text-yellow-400"></i>`;
+            }
+            if (hasHalfStar) {
+                starRatingContainer.innerHTML += `<i class="fas fa-star-half-alt text-yellow-400"></i>`;
+            }
+            for (let i = 0; i < (5 - fullStars - (hasHalfStar ? 1 : 0)); i++) {
+                starRatingContainer.innerHTML += `<i class="far fa-star text-yellow-400"></i>`;
+            }
+
+
+            // --- Bagian Overall Sentiment (Gauge Chart) ---
+            const gaugeCtx = document.getElementById('sentimentGauge').getContext('2d');
+            sentimentGaugeChart = new Chart(gaugeCtx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [data.sentiment.positive, 100 - data.sentiment.positive], // Positif vs Sisa (untuk latar belakang)
+                        backgroundColor: [getComputedStyle(document.documentElement).getPropertyValue('--positive'), getComputedStyle(document.documentElement).getPropertyValue('--bg-color')], // Menggunakan getComputedStyle untuk memastikan nilai hex
+                        borderWidth: 0,
+                        circumference: 270, // Hanya 3/4 lingkaran
+                        rotation: 225, // Mulai dari bawah kiri
+                        cutout: '85%' // Ketebalan donat
+                    }]
+                },
+                options: {
+                    responsive: false, // Tidak responsif otomatis
+                    cutoutPercentage: 80, // Ukuran lubang tengah
+                    tooltips: { enabled: false }, // Tidak menampilkan tooltip
+                    events: [] // Tidak ada event interaksi
+                }
+            });
+
+            // Animasi nilai gauge
+            let startGauge = 0;
+            const endGauge = data.sentiment.positive;
+            const durationGauge = 1500;
+            const incrementGauge = endGauge / (durationGauge / 16); // 16ms per frame
+            const gaugeValue = document.getElementById('gaugeValue');
+
+            function animateGauge() {
+                startGauge += incrementGauge;
+                if (startGauge >= endGauge) {
+                    startGauge = endGauge;
+                    gaugeValue.textContent = Math.round(startGauge) + '%';
+                    return;
+                }
+                gaugeValue.textContent = Math.round(startGauge) + '%';
+                requestAnimationFrame(animateGauge);
+            }
+            requestAnimationFrame(animateGauge);
+
+            // Perbarui teks sentimen keseluruhan
+            document.getElementById('overallSentimentText').innerText = data.sentiment.overallText;
+            document.getElementById('overallSentimentText').className = `px-4 py-2 rounded-full text-white font-medium mb-4 sentiment-${data.sentiment.overallText.toLowerCase().includes('positive') ? 'positive' : data.sentiment.overallText.toLowerCase().includes('neutral') ? 'neutral' : 'negative'}`;
+            document.getElementById('total-reviews-summary').innerText = data.product.totalReviews.toLocaleString();
+
+            // --- Bagian Sentiment Distribution (Bar Chart) ---
+            const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+            sentimentBarChart = new Chart(sentimentCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Positive', 'Neutral', 'Negative'],
+                    datasets: [{
+                        data: [data.sentiment.positive, data.sentiment.neutral, data.sentiment.negative],
+                        backgroundColor: [
+                            getComputedStyle(document.documentElement).getPropertyValue('--positive'),
+                            getComputedStyle(document.documentElement).getPropertyValue('--neutral'),
+                            getComputedStyle(document.documentElement).getPropertyValue('--negative')
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 8 // Sudut melengkung pada bar
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                display: false // Sembunyikan garis grid Y
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%'; // Tambahkan '%' pada label Y
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Sembunyikan legend
+                        }
+                    }
+                }
+            });
+            // Perbarui persentase di bawah bar chart
+            document.getElementById('positive-percent').innerText = `${data.sentiment.positive}%`;
+            document.getElementById('neutral-percent').innerText = `${data.sentiment.neutral}%`;
+            document.getElementById('negative-percent').innerText = `${data.sentiment.negative}%`;
+
+            // --- Bagian Key Insights ---
+            const keyInsightsList = document.getElementById('key-insights-list');
+            keyInsightsList.innerHTML = ''; // Bersihkan insight lama
+            data.keyInsights.forEach(insight => {
+                const iconClass = insight.type === 'positive' ? 'text-green-600' : insight.type === 'negative' ? 'text-red-600' : 'text-yellow-600';
+                const bgColorClass = insight.type === 'positive' ? 'bg-green-100' : insight.type === 'negative' ? 'bg-red-100' : 'bg-yellow-100';
+                const iconSvg = insight.type === 'positive' ? 
+                    `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>` :
+                    `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`;
+                
+                keyInsightsList.innerHTML += `
+                    <div class="key-insight-item">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full ${bgColorClass} flex items-center justify-center ${iconClass}">
+                                ${iconSvg}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-700">${insight.text}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // --- Bagian Review Themes ---
+            const positiveThemesContainer = document.getElementById('positive-themes');
+            positiveThemesContainer.innerHTML = '';
+            data.themes.positive.forEach(theme => {
+                positiveThemesContainer.innerHTML += `
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>${theme.name}</span>
+                            <span>${theme.percentage}% mentions</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: ${theme.percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const negativeThemesContainer = document.getElementById('negative-themes');
+            negativeThemesContainer.innerHTML = '';
+            data.themes.negative.forEach(theme => {
+                negativeThemesContainer.innerHTML += `
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>${theme.name}</span>
+                            <span>${theme.percentage}% mentions</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: ${theme.percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // --- Bagian Frequent Keywords by Sentiment (Menggunakan Tabel) ---
+            const keywordsTableBody = document.getElementById('keywords-table-body');
+            keywordsTableBody.innerHTML = ''; // Bersihkan baris lama
+
+            // Tentukan jumlah baris maksimum berdasarkan kategori dengan keyword terbanyak
+            const maxKeywords = Math.max(
+                data.keywords.positive.length,
+                data.keywords.neutral.length,
+                data.keywords.negative.length
+            );
+
+            for (let i = 0; i < maxKeywords; i++) {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-100 last:border-b-0'; // Tambahkan border antar baris, kecuali baris terakhir
+
+                // Kolom Positive Keywords
+                const positiveCell = document.createElement('td');
+                positiveCell.className = 'py-2 px-1 text-sm text-gray-700'; 
+                positiveCell.innerHTML = data.keywords.positive[i] ? 
+                    `<span class="text-gray-700 px-2 py-1 rounded-full">${data.keywords.positive[i]}</span>` : ''; // Hapus bg-green-100
+                row.appendChild(positiveCell);
+
+                // Kolom Neutral Keywords
+                const neutralCell = document.createElement('td');
+                neutralCell.className = 'py-2 px-1 text-sm text-gray-700'; 
+                neutralCell.innerHTML = data.keywords.neutral[i] ? 
+                    `<span class="text-gray-700 px-2 py-1 rounded-full">${data.keywords.neutral[i]}</span>` : ''; // Hapus bg-yellow-100
+                row.appendChild(neutralCell);
+
+                // Kolom Negative Keywords
+                const negativeCell = document.createElement('td');
+                negativeCell.className = 'py-2 px-1 text-sm text-gray-700'; 
+                negativeCell.innerHTML = data.keywords.negative[i] ? 
+                    `<span class="text-gray-700 px-2 py-1 rounded-full">${data.keywords.negative[i]}</span>` : ''; // Hapus bg-red-100
+                row.appendChild(negativeCell);
+
+                keywordsTableBody.appendChild(row);
+            }
+
+
+            // --- Bagian Rating Trend Over Time ---
+            const ratingTrendCtx = document.getElementById('ratingTrendChart').getContext('2d');
+            ratingTrendLineChart = new Chart(ratingTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: data.ratingTrend.labels,
+                    datasets: [{
+                        label: 'Average Rating',
+                        data: data.ratingTrend.data,
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary'), 
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--primary'), 
+                        pointBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary') 
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 3.0, 
+                            max: 5.0,
+                            grid: {
+                                color: '#E0E0E0'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1);
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Rating: ${context.raw.toFixed(1)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Bagian Actionable Recommendations ---
+            const recommendationsList = document.getElementById('recommendations-list');
+            recommendationsList.innerHTML = '';
+            data.recommendations.forEach(rec => {
+                recommendationsList.innerHTML += `
+                    <div class="neumorph-inset p-4 rounded-lg flex items-start">
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                                <i class="${rec.icon} text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-700">${rec.text}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // --- Bagian Featured Reviews ---
+            const featuredReviewsList = document.getElementById('featured-reviews-list');
+            featuredReviewsList.innerHTML = '';
+            data.featuredReviews.forEach(review => {
+                const borderClass = review.sentiment === 'positive' ? 'border-green-500' : review.sentiment === 'neutral' ? 'border-yellow-500' : 'border-red-500';
+                const textClass = review.sentiment === 'positive' ? 'text-green-600' : review.sentiment === 'neutral' ? 'text-yellow-600' : 'text-red-600';
+                const bgUserInitial = review.sentiment === 'positive' ? 'bg-green-500' : review.sentiment === 'neutral' ? 'bg-yellow-500' : 'bg-red-500';
+                const userInitial = review.user.split(' ').map(n => n[0]).join('');
+                
+                let starsHtml = '';
+                const fullStars = Math.floor(review.rating);
+                const hasHalfStar = review.rating % 1 !== 0;
+                for (let i = 0; i < fullStars; i++) {
+                    starsHtml += `<i class="fas fa-star text-yellow-400"></i>`;
+                }
+                if (hasHalfStar) {
+                    starsHtml += `<i class="fas fa-star-half-alt text-yellow-400"></i>`;
+                }
+                for (let i = 0; i < (5 - fullStars - (hasHalfStar ? 1 : 0)); i++) {
+                    starsHtml += `<i class="far fa-star text-yellow-400"></i>`;
+                }
+
+                featuredReviewsList.innerHTML += `
+                    <div class="neumorph p-4 rounded-xl border-l-4 ${borderClass}">
+                        <div class="flex items-center mb-2">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full ${bgUserInitial} flex items-center justify-center text-white font-medium mr-2">${userInitial}</div>
+                                <span class="font-medium">${review.user}</span>
+                            </div>
+                            <div class="ml-auto flex items-center">
+                                ${starsHtml}
+                                <span class="ml-1 text-gray-600">${review.rating.toFixed(1)}</span>
+                            </div>
+                        </div>
+                        <h4 class="font-medium ${textClass} mb-1">${review.sentiment === 'positive' ? 'Amazing experience!' : review.sentiment === 'neutral' ? 'Decent but could be better' : 'Very disappointed!'}</h4>
+                        <p class="text-gray-600">${review.text}</p>
+                    </div>
+                `;
+            });
+
+        }
+
+        // Panggil fungsi untuk mengisi data saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeChartsAndData(simulatedAnalysisData);
+        });
+    </script>
+</body>
+</html>
