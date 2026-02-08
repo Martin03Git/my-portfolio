@@ -4,8 +4,7 @@ import { Mail, MapPin, Send, Github, Linkedin, AtSign } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -29,17 +28,31 @@ const Contact: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitted(true);
-      setFormState({ name: '', email: '', message: '' });
-      setTimeout(() => setSubmitted(false), 5000);
-    }, 1500);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 5000);
   };
 
   return (
-    <section id={SectionId.CONTACT} ref={sectionRef} className="py-24">
+    <section id={SectionId.CONTACT} ref={sectionRef} className="py-24 relative">
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-zinc-900 border border-zinc-800 text-white p-4 rounded-xl shadow-2xl flex items-start gap-3 animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className="text-amber-500 mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          </div>
+          <div className="flex-1">
+            <h4 className="font-bold text-sm mb-1">Feature Unavailable</h4>
+            <p className="text-sm text-zinc-400">The message feature is currently under development. Please contact me directly via email or social media.</p>
+          </div>
+          <button 
+            onClick={() => setShowToast(false)}
+            className="text-zinc-500 hover:text-white transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           <div className={`transform transition-all duration-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
@@ -139,19 +152,10 @@ const Contact: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || submitted}
-                className="w-full bg-accent-600 text-white font-black py-5 rounded-xl hover:bg-accent-500 transition-all flex items-center justify-center gap-3 disabled:opacity-50 group shadow-lg shadow-accent-600/20"
+                className="w-full bg-accent-600 text-white font-black py-5 rounded-xl hover:bg-accent-500 transition-all flex items-center justify-center gap-3 group shadow-lg shadow-accent-600/20"
               >
-                {isSubmitting ? (
-                  <span className="animate-pulse">Sending...</span>
-                ) : submitted ? (
-                  <span>Talk to you soon!</span>
-                ) : (
-                  <>
-                    Send Message
-                    <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </>
-                )}
+                Send Message
+                <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </button>
             </div>
           </form>
