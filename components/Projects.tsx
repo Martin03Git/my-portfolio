@@ -84,22 +84,35 @@ const ProjectCard: React.FC<{ project: Project; idx: number; isVisible: boolean 
           ))}
         </div>
 
-        <div className="flex items-center justify-between mt-auto pt-6 border-t border-zinc-800">
-          {project.github ? (
-            <a href={project.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
-              <Github size={16} />
-              <span>Source</span>
-            </a>
-          ) : (
-             <div className="w-4"></div>
-          )}
-          {project.link ? (
-            <a href={project.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-accent-500 hover:text-accent-400 font-bold transition-colors">
-              <span>View Live</span>
-              <ExternalLink size={16} />
-            </a>
-          ) : (
+        <div className="flex flex-wrap items-center gap-4 mt-auto pt-6 border-t border-zinc-800">
+          {project.id === 'coming-soon' ? (
             <span className="text-xs text-zinc-600 italic">Work in progress</span>
+          ) : (
+            <>
+              {project.github && project.github !== '' && (
+                <a 
+                  href={project.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
+                >
+                  <Github size={16} />
+                  <span>Source</span>
+                </a>
+              )}
+              
+              {project.link && project.link !== '' && project.link !== '#' && (
+                <a 
+                  href={project.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center gap-2 text-sm text-accent-500 hover:text-accent-400 font-bold transition-colors ml-auto"
+                >
+                  <span>View Live</span>
+                  <ExternalLink size={16} />
+                </a>
+              )}
+            </>
           )}
         </div>
       </div>
