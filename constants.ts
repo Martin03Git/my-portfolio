@@ -10,6 +10,8 @@ I am a university student passionate about building functional web applications.
 I enjoy bridging the gap between frontend and backend logic. Additionally, I have a keen interest in business automation, utilizing tools like n8n to streamline workflows.
 `;
 
+export const RESUME_URL = "https://drive.google.com/uc?export=download&id=1hYVzN3EeicIPeb3ep32n4prLbtXW-qAd";
+
 export const PROJECTS: Project[] = [
   {
     id: 'weather-sphere',

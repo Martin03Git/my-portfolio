@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SectionId } from '../types.ts';
+import { RESUME_URL } from '../constants.ts';
 import { ArrowRight, Download } from 'lucide-react';
 
 const ROTATING_TEXTS = [
@@ -65,10 +66,15 @@ const Hero: React.FC = () => {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button className="px-8 py-4 bg-zinc-900 border border-zinc-800 text-zinc-300 font-bold rounded-xl hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+              <a 
+                href={RESUME_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-4 bg-zinc-900 border border-zinc-800 text-zinc-300 font-bold rounded-xl hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 w-full sm:w-auto"
+              >
                 <Download className="w-5 h-5 text-accent-500" />
                 Resume
-              </button>
+              </a>
             </div>
           </div>
 
