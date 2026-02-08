@@ -36,11 +36,6 @@ const Hero: React.FC = () => {
           
           {/* Left Content: Text */}
           <div className="flex flex-col items-start text-left order-2 lg:order-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-accent-400 text-[10px] font-bold uppercase tracking-widest mb-8">
-              <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse"></span>
-              Open to Internships
-            </div>
-            
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter text-white mb-6 leading-none">
               Exploring <br />
               <span 

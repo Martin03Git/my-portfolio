@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SectionId } from '../types.ts';
-import { Menu, X, Terminal } from 'lucide-react';
+import { Menu, X, Terminal, Download } from 'lucide-react';
+import { RESUME_URL } from '../constants.ts';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -17,7 +18,7 @@ const Header: React.FC = () => {
   const scrollToSection = (id: SectionId) => {
     const element = document.getElementById(id);
     if (element) {
-      const offset = 80;
+      const offset = 60; // Reduced from 80 to fix gap issue
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
@@ -80,7 +81,9 @@ const Header: React.FC = () => {
             </button>
           ))}
           <a 
-            href="#" 
+            href={RESUME_URL}
+            target="_blank"
+            rel="noopener noreferrer" 
             className="ml-4 px-5 py-2.5 bg-accent-600 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-accent-500 transition-all shadow-lg shadow-accent-600/20"
           >
             Resume
@@ -109,9 +112,12 @@ const Header: React.FC = () => {
             </button>
           ))}
           <a 
-            href="#" 
-            className="mt-2 w-full text-center py-4 bg-accent-600 text-white font-bold rounded-xl"
+            href={RESUME_URL}
+            target="_blank"
+            rel="noopener noreferrer" 
+            className="mt-2 w-full text-center py-4 bg-accent-600 text-white font-bold rounded-xl flex items-center justify-center gap-2"
           >
+            <Download className="w-5 h-5" />
             Download Resume
           </a>
         </div>
