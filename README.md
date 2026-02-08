@@ -8,6 +8,7 @@ A modern, responsive personal portfolio website built with React, TypeScript, an
 - **Project Showcase**: Detailed view of projects with tech stacks, descriptions, and links.
 - **Smooth Navigation**: Single-page application experience with smooth scrolling between sections.
 - **Modern UI/UX**: Clean aesthetic using Tailwind CSS with dark mode support (system preference/default style).
+- **Interactive Elements**: Dynamic project cards, contact form toast notifications, and resume preview.
 
 ## Tech Stack
 
@@ -27,7 +28,7 @@ A modern, responsive personal portfolio website built with React, TypeScript, an
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/martins-portfolio.git
+   git clone https://github.com/yourusername/my-portfolio.git
    cd martins-portfolio
    ```
 
@@ -37,6 +38,8 @@ A modern, responsive personal portfolio website built with React, TypeScript, an
    ```
 
 ### Development
+
+Start the development server:
 
 Start the development server:
 
