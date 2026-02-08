@@ -62,6 +62,21 @@ export const PROJECTS: Project[] = [
     github: 'https://github.com/Martin03Git/'
   },
   {
+    id: 'finance-flow',
+    title: 'Finance Flow',
+    description: 'A modern, expense tracker MVP featuring a dynamic web dashboard, secure authentication, and a low-code automation backend.',
+    techStack: ['Tailwind CSS', 'HTML', 'JavaScript', 'n8n', 'Supabase', 'Node.js', 'Express.js'],
+    imageUrls: [
+      'https://github.com/Martin03Git/public-foto/blob/main/martin-portfolio/FinanceFlow_login.png?raw=true',
+      'https://github.com/Martin03Git/public-foto/blob/main/martin-portfolio/FinanceFlow_dashboard.png?raw=true',
+      'https://github.com/Martin03Git/public-foto/blob/main/martin-portfolio/FinanceFlow_statistics1.png?raw=true',
+      'https://github.com/Martin03Git/public-foto/blob/main/martin-portfolio/FinanceFlow_statistics2.png?raw=true',
+      'https://github.com/Martin03Git/public-foto/blob/main/martin-portfolio/FinanceFlow_profile.png?raw=true'
+    ],
+    link: '#',
+    github: 'https://github.com/Martin03Git/finance-flow'
+  },
+  {
     id: 'coming-soon',
     title: 'Coming Soon',
     description: 'Currently exploring new technologies and brainstorming ideas for my next application. Stay tuned!',
@@ -80,17 +95,17 @@ export const SKILLS: SkillCategory[] = [
   },
   {
     name: 'Backend & Data',
-    skills: ['Node.js (Basic)', 'MySQL', 'REST APIs'],
+    skills: ['Node.js (Basic)', 'MySQL', 'Supabase (Basic)'],
     icon: 'Database'
   },
   {
     name: 'Tools & Version Control',
-    skills: ['Git', 'GitHub', 'VS Code', 'Bootstrap'],
+    skills: ['Git', 'GitHub', 'VS Code', 'Sublime Text', 'Bootstrap'],
     icon: 'Terminal'
   },
   {
     name: 'Automation & Others',
-    skills: ['n8n', 'Workflow Automation', 'JSON handling'],
+    skills: ['n8n Workflow Automation', 'JSON handling'],
     icon: 'Code2'
   }
 ];
